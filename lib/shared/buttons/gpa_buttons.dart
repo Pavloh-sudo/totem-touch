@@ -21,6 +21,8 @@ class GpaPrimaryButton extends StatelessWidget {
     this.expand = false,
     this.sound = SoundEffect.tap,
     this.unlockSound = false,
+    this.height = KioskConfiguration.primaryControlHeight,
+    this.trailingIcon = false,
     super.key,
   });
 
@@ -31,6 +33,8 @@ class GpaPrimaryButton extends StatelessWidget {
   final bool expand;
   final SoundEffect sound;
   final bool unlockSound;
+  final double height;
+  final bool trailingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +47,8 @@ class GpaPrimaryButton extends StatelessWidget {
       expand: expand,
       sound: sound,
       unlockSound: unlockSound,
+      height: height,
+      trailingIcon: trailingIcon,
     );
   }
 }
@@ -55,6 +61,8 @@ class GpaSecondaryButton extends StatelessWidget {
     this.state = GpaButtonState.normal,
     this.expand = false,
     this.sound = SoundEffect.tap,
+    this.height = KioskConfiguration.primaryControlHeight,
+    this.trailingIcon = false,
     super.key,
   });
 
@@ -64,6 +72,8 @@ class GpaSecondaryButton extends StatelessWidget {
   final GpaButtonState state;
   final bool expand;
   final SoundEffect sound;
+  final double height;
+  final bool trailingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +85,8 @@ class GpaSecondaryButton extends StatelessWidget {
       variant: _GpaButtonVariant.secondary,
       expand: expand,
       sound: sound,
+      height: height,
+      trailingIcon: trailingIcon,
     );
   }
 }
@@ -122,6 +134,8 @@ class _GpaButtonSurface extends StatefulWidget {
     this.expand = false,
     this.unlockSound = false,
     this.semanticLabel,
+    this.height = KioskConfiguration.primaryControlHeight,
+    this.trailingIcon = false,
   });
 
   final String label;
@@ -133,6 +147,8 @@ class _GpaButtonSurface extends StatefulWidget {
   final SoundEffect sound;
   final bool unlockSound;
   final String? semanticLabel;
+  final double height;
+  final bool trailingIcon;
 
   @override
   State<_GpaButtonSurface> createState() => _GpaButtonSurfaceState();
@@ -205,7 +221,7 @@ class _GpaButtonSurfaceState extends State<_GpaButtonSurface>
     final duration = _visuallyPressed ? AppMotion.touchDown : AppMotion.touchUp;
     final height = widget.variant == _GpaButtonVariant.icon
         ? KioskConfiguration.iconControlSize
-        : KioskConfiguration.primaryControlHeight;
+        : widget.height;
     final width = widget.variant == _GpaButtonVariant.icon ? height : null;
     final radius = BorderRadius.circular(
       widget.variant == _GpaButtonVariant.icon ? 18 : 18,
@@ -217,6 +233,7 @@ class _GpaButtonSurfaceState extends State<_GpaButtonSurface>
       state: widget.state,
       variant: widget.variant,
       foregroundColor: style.foreground,
+      trailingIcon: widget.trailingIcon,
     );
     content = Padding(
       padding: widget.variant == _GpaButtonVariant.icon
@@ -300,6 +317,7 @@ class _ButtonContent extends StatelessWidget {
     required this.state,
     required this.variant,
     required this.foregroundColor,
+    required this.trailingIcon,
   });
 
   final String label;
@@ -307,6 +325,7 @@ class _ButtonContent extends StatelessWidget {
   final GpaButtonState state;
   final _GpaButtonVariant variant;
   final Color foregroundColor;
+  final bool trailingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -327,12 +346,16 @@ class _ButtonContent extends StatelessWidget {
       return Icon(resolvedIcon, color: foregroundColor, size: 28);
     }
 
+    final iconWidget = resolvedIcon == null
+        ? null
+        : Icon(resolvedIcon, color: foregroundColor, size: 24);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (resolvedIcon != null) ...[
-          Icon(resolvedIcon, color: foregroundColor, size: 24),
+        if (iconWidget != null && !trailingIcon) ...[
+          iconWidget,
           const SizedBox(width: 12),
         ],
         Flexible(
@@ -343,6 +366,10 @@ class _ButtonContent extends StatelessWidget {
             style: AppTypography.button.copyWith(color: foregroundColor),
           ),
         ),
+        if (iconWidget != null && trailingIcon) ...[
+          const SizedBox(width: 12),
+          iconWidget,
+        ],
       ],
     );
   }

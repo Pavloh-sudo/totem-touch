@@ -2,31 +2,85 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/animations/app_motion.dart';
+import '../../../core/audio/sound_effect.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/buttons/gpa_buttons.dart';
-import '../../../shared/cards/gpa_surface_card.dart';
 import '../../../shared/mascot/gp_mascot.dart';
 
 class AttractPage extends StatefulWidget {
-  const AttractPage({this.onStart, super.key});
+  const AttractPage({required this.onStart, super.key});
 
-  final VoidCallback? onStart;
+  final Future<void> Function() onStart;
 
   @override
   State<AttractPage> createState() => _AttractPageState();
 }
 
 class _AttractPageState extends State<AttractPage> {
+  static const _welcomeWaveDuration = Duration(milliseconds: 920);
+  static const _ambientReactionDuration = Duration(milliseconds: 900);
+  static const _ambientReactionInterval = Duration(seconds: 15);
+
   GpMascotState _mascotState = GpMascotState.idle;
-  Timer? _mascotResetTimer;
+  Timer? _welcomeTimer;
+  Timer? _reactionResetTimer;
+  Timer? _ambientReactionTimer;
+  bool _nextAmbientReactionIsWave = false;
+  bool _started = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _welcomeTimer = Timer(AppMotion.emphasis, _playWelcomeWave);
+  }
+
+  void _playWelcomeWave() {
+    if (!mounted || _started) return;
+    _setMascotState(GpMascotState.wave);
+    _reactionResetTimer = Timer(_welcomeWaveDuration, () {
+      if (!mounted || _started) return;
+      _setMascotState(GpMascotState.idle);
+      _scheduleAmbientReaction();
+    });
+  }
+
+  void _scheduleAmbientReaction() {
+    _ambientReactionTimer?.cancel();
+    _ambientReactionTimer = Timer(_ambientReactionInterval, () {
+      if (!mounted || _started) return;
+      _setMascotState(
+        _nextAmbientReactionIsWave ? GpMascotState.wave : GpMascotState.guide,
+      );
+      _nextAmbientReactionIsWave = !_nextAmbientReactionIsWave;
+      _reactionResetTimer = Timer(_ambientReactionDuration, () {
+        if (!mounted || _started) return;
+        _setMascotState(GpMascotState.idle);
+        _scheduleAmbientReaction();
+      });
+    });
+  }
+
+  void _setMascotState(GpMascotState state) {
+    if (mounted && _mascotState != state) {
+      setState(() => _mascotState = state);
+    }
+  }
 
   void _start() {
-    _mascotResetTimer?.cancel();
-    setState(() => _mascotState = GpMascotState.wave);
-    _mascotResetTimer = Timer(const Duration(milliseconds: 1200), () {
-      if (mounted) setState(() => _mascotState = GpMascotState.idle);
-    });
-    widget.onStart?.call();
+    if (_started) return;
+    _started = true;
+    _cancelGreetingTimers();
+    _setMascotState(GpMascotState.wave);
+    unawaited(_openRegistration());
+  }
+
+  Future<void> _openRegistration() async {
+    await widget.onStart();
+    if (!mounted) return;
+    _started = false;
+    _setMascotState(GpMascotState.idle);
+    _welcomeTimer = Timer(AppMotion.emphasis, _playWelcomeWave);
   }
 
   @override
@@ -36,56 +90,60 @@ class _AttractPageState extends State<AttractPage> {
     return Row(
       children: [
         Expanded(
-          flex: 11,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 72,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: AppColors.gpaCrimson,
-                  borderRadius: BorderRadius.circular(99),
-                ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: AppColors.gpaCrimson,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Tu siguiente idea puede empezar aquí.',
+                    style: textTheme.displayLarge,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Conoce nuestras soluciones, oportunidades y áreas de '
+                    'especialización. Cuéntanos qué te interesa y conectemos '
+                    'contigo.',
+                    style: textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 34),
+                  SizedBox(
+                    width: 280,
+                    child: GpaPrimaryButton(
+                      label: 'Quiero conocer más',
+                      icon: Icons.arrow_forward_rounded,
+                      trailingIcon: true,
+                      height: 68,
+                      sound: SoundEffect.selection,
+                      onPressed: _started ? null : _start,
+                      unlockSound: true,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 26),
-              Text(
-                'Descubre todo lo que hacemos en GPA',
-                style: textTheme.displayLarge,
-              ),
-              const SizedBox(height: 22),
-              Text(
-                'Conoce nuestras áreas, proyectos y oportunidades.',
-                style: textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 38),
-              SizedBox(
-                width: 300,
-                child: GpaPrimaryButton(
-                  label: 'Quiero conocer más',
-                  icon: Icons.arrow_forward_rounded,
-                  onPressed: _start,
-                  unlockSound: true,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-        const SizedBox(width: 48),
-        Expanded(
-          flex: 9,
-          child: SizedBox(
-            height: 520,
-            child: GpaSurfaceCard(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: GpMascot(
-                  state: _mascotState,
-                  size: 390,
-                  alignment: Alignment.bottomCenter,
-                ),
-              ),
+        const SizedBox(width: 52),
+        SizedBox(
+          width: 310,
+          child: Center(
+            child: GpMascot(
+              state: _mascotState,
+              size: 310,
+              alignment: Alignment.bottomCenter,
             ),
           ),
         ),
@@ -93,9 +151,15 @@ class _AttractPageState extends State<AttractPage> {
     );
   }
 
+  void _cancelGreetingTimers() {
+    _welcomeTimer?.cancel();
+    _reactionResetTimer?.cancel();
+    _ambientReactionTimer?.cancel();
+  }
+
   @override
   void dispose() {
-    _mascotResetTimer?.cancel();
+    _cancelGreetingTimers();
     super.dispose();
   }
 }

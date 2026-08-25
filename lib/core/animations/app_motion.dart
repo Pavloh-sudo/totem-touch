@@ -9,6 +9,11 @@ abstract final class AppMotion {
   static const celebration = Duration(milliseconds: 650);
   static const celebrationLong = Duration(milliseconds: 900);
 
+  static const attractToRegistration = Duration(milliseconds: 320);
+  static const attractExit = Duration(milliseconds: 140);
+  static const registrationEnter = Duration(milliseconds: 220);
+  static const attractOverlap = Duration(milliseconds: 60);
+
   static const touchDown = instant;
   static const touchUp = fast;
   static const ripple = Duration(milliseconds: 320);

@@ -385,13 +385,11 @@ class _GpMascotState extends State<GpMascot> with TickerProviderStateMixin {
                 );
 
                 final scale =
-                    (0.96 + (0.04 * entrance)) *
+                    (0.94 + (0.06 * entrance)) *
                     (1 + (0.012 * breathingPulse)) *
                     pose.scale;
                 final translateY =
-                    (6 * _pixelScale * (1 - entrance)) -
-                    (2 * _pixelScale * breathingPulse) +
-                    pose.translateY;
+                    (-2 * _pixelScale * breathingPulse) + pose.translateY;
                 final angle = pose.rotationDegrees * math.pi / 180;
 
                 return Opacity(

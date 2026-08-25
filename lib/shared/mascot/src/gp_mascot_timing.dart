@@ -8,7 +8,7 @@ abstract final class _GpMascotTiming {
   static Duration reaction(GpMascotState state) {
     return switch (state) {
       GpMascotState.idle => Duration.zero,
-      GpMascotState.wave => const Duration(milliseconds: 1100),
+      GpMascotState.wave => const Duration(milliseconds: 900),
       GpMascotState.thinking => const Duration(milliseconds: 600),
       GpMascotState.guide => const Duration(milliseconds: 550),
       GpMascotState.celebrate => const Duration(milliseconds: 1200),

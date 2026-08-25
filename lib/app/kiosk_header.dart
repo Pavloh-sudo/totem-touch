@@ -13,16 +13,20 @@ class KioskHeader extends StatelessWidget {
   const KioskHeader({
     required this.soundController,
     this.progressStage,
+    this.height = KioskConfiguration.headerHeight,
+    this.logoSize = 50,
     super.key,
   });
 
   final SoundController soundController;
   final KioskProgressStage? progressStage;
+  final double height;
+  final double logoSize;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: KioskConfiguration.headerHeight,
+      height: height,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: KioskConfiguration.horizontalMargin,
@@ -34,7 +38,9 @@ class KioskHeader extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Image.asset(
                 AssetPaths.gpaLogo,
-                height: 50,
+                width: logoSize,
+                height: logoSize,
+                fit: BoxFit.contain,
                 semanticLabel: 'GPA',
               ),
             ),

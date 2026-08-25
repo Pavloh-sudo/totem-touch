@@ -19,6 +19,8 @@ class KioskShell extends StatefulWidget {
     this.onInactivityWarning,
     this.onSessionExpired,
     this.soundController,
+    this.headerHeight = KioskConfiguration.headerHeight,
+    this.logoSize = 50,
     super.key,
   });
 
@@ -29,6 +31,8 @@ class KioskShell extends StatefulWidget {
   final VoidCallback? onInactivityWarning;
   final VoidCallback? onSessionExpired;
   final SoundController? soundController;
+  final double headerHeight;
+  final double logoSize;
 
   @override
   State<KioskShell> createState() => _KioskShellState();
@@ -114,6 +118,8 @@ class _KioskShellState extends State<KioskShell> {
                             KioskHeader(
                               soundController: _soundController,
                               progressStage: widget.progressStage,
+                              height: widget.headerHeight,
+                              logoSize: widget.logoSize,
                             ),
                             Expanded(
                               child: Padding(
