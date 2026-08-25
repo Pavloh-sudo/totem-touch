@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../animations/app_motion.dart';
 import 'app_colors.dart';
 
 abstract final class AppSurfaces {
   static const double radius = 20;
-  static const Duration transitionDuration = Duration(milliseconds: 180);
+  static const Duration transitionDuration = AppMotion.standard;
 
   static BoxDecoration card({bool selected = false}) {
     return BoxDecoration(

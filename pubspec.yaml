@@ -7,6 +7,7 @@ environment:
   sdk: ^3.12.2
 
 dependencies:
+  audioplayers: ^6.8.1
   flutter:
     sdk: flutter
 
@@ -19,6 +20,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/branding/
+    - assets/mascot/gp/
+    - assets/audio/
   fonts:
     - family: Manrope
       fonts:

@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "canvas": {
+    "width": 1024,
+    "height": 1024,
+    "floorY": 900
+  },
+  "pivots": {
+    "head": {
+      "x": 512,
+      "y": 508
+    },
+    "armLeft": {
+      "x": 641,
+      "y": 522
+    },
+    "armRight": {
+      "x": 383,
+      "y": 522
+    }
+  },
+  "offsets": {
+    "body.png": { "x": 0, "y": 0 },
+    "head.png": { "x": 0, "y": 0 },
+    "eyes_open.png": { "x": 0, "y": 0 },
+    "eyes_closed.png": { "x": 0, "y": 0 },
+    "mouth_neutral.png": { "x": 0, "y": 0 },
+    "mouth_smile.png": { "x": 0, "y": 0 },
+    "mouth_thinking.png": { "x": 0, "y": 0 },
+    "mouth_error.png": { "x": 0, "y": 0 },
+    "arm_left_idle.png": { "x": 0, "y": 0 },
+    "arm_right_idle.png": { "x": 0, "y": 0 },
+    "arm_right_wave.png": { "x": 0, "y": 0 },
+    "arm_right_guide.png": { "x": 0, "y": 0 },
+    "arm_left_celebrate.png": { "x": 0, "y": 0 },
+    "arm_right_celebrate.png": { "x": 0, "y": 0 },
+    "shadow.png": { "x": 0, "y": 0 }
+  },
+  "order": [
+    "shadow",
+    "arms",
+    "body",
+    "head",
+    "eyes",
+    "mouth"
+  ]
+}

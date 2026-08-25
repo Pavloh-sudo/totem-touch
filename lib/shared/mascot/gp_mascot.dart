@@ -1,7 +1,17 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
+import '../../core/animations/app_motion.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/area_colors.dart';
+
+part 'src/gp_mascot_artwork.dart';
+part 'src/gp_mascot_assets.dart';
+part 'src/gp_mascot_motion.dart';
+part 'src/gp_mascot_state.dart';
+part 'src/gp_mascot_timing.dart';
 
 enum GpMascotState { idle, wave, thinking, guide, celebrate, error }
 
@@ -15,109 +25,60 @@ enum GpMascotContext {
   careers,
 }
 
-class GpMascot extends StatelessWidget {
+class GpMascot extends StatefulWidget {
   const GpMascot({
-    required this.artwork,
+    this.artwork,
     this.state = GpMascotState.idle,
     this.mascotContext = GpMascotContext.defaultOutfit,
     this.size = 240,
+    this.alignment = Alignment.bottomCenter,
+    this.enableIdleMotion = true,
+    this.playEntranceAnimation = true,
     super.key,
   });
 
-  final Widget artwork;
+  final Widget? artwork;
   final GpMascotState state;
   final GpMascotContext mascotContext;
   final double size;
+  final AlignmentGeometry alignment;
+  final bool enableIdleMotion;
+  final bool playEntranceAnimation;
 
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      image: true,
-      label: state.semanticsLabel,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 240),
-        curve: Curves.easeOutCubic,
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: mascotContext.accentColor.withValues(alpha: 0.08),
-              blurRadius: 28,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: AnimatedSlide(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
-          offset: state.slideOffset,
-          child: AnimatedRotation(
-            duration: const Duration(milliseconds: 240),
-            curve: Curves.easeOutBack,
-            turns: state.rotationTurns,
-            child: AnimatedScale(
-              key: ValueKey('${state.name}-${mascotContext.name}'),
-              duration: const Duration(milliseconds: 240),
-              curve: Curves.easeOutBack,
-              scale: state.scale,
-              child: artwork,
-            ),
-          ),
-        ),
-      ),
+  @visibleForTesting
+  static Widget layeredArtworkForTesting({
+    required Widget body,
+    required Widget head,
+    required Widget openEyes,
+    required Widget closedEyes,
+    Widget? headAccessories,
+    Widget? foreground,
+    Widget? shadow,
+  }) {
+    return _GpArtworkLayers(
+      body: body,
+      head: head,
+      openEyes: openEyes,
+      closedEyes: closedEyes,
+      mouthNeutral: null,
+      mouthSmile: null,
+      mouthThinking: null,
+      mouthError: null,
+      armLeftIdle: null,
+      armRightIdle: null,
+      armRightWave: null,
+      armRightGuide: null,
+      armLeftCelebrate: null,
+      armRightCelebrate: null,
+      headAccessories: headAccessories,
+      foreground: foreground,
+      shadow: shadow,
+      headAlignment: _GpAssetRig.headAlignment,
+      armLeftAlignment: _GpAssetRig.armLeftAlignment,
+      armRightAlignment: _GpAssetRig.armRightAlignment,
     );
   }
-}
 
-extension on GpMascotState {
-  String get semanticsLabel {
-    return switch (this) {
-      GpMascotState.idle => 'GP listo para ayudarte',
-      GpMascotState.wave => 'GP saludando',
-      GpMascotState.thinking => 'GP pensando',
-      GpMascotState.guide => 'GP mostrando el camino',
-      GpMascotState.celebrate => 'GP celebrando',
-      GpMascotState.error => 'GP indicando que algo salió mal',
-    };
-  }
-
-  double get scale {
-    return switch (this) {
-      GpMascotState.thinking => 0.97,
-      GpMascotState.celebrate => 1.06,
-      _ => 1,
-    };
-  }
-
-  double get rotationTurns {
-    return switch (this) {
-      GpMascotState.wave => -0.018,
-      GpMascotState.error => 0.012,
-      _ => 0,
-    };
-  }
-
-  Offset get slideOffset {
-    return switch (this) {
-      GpMascotState.guide => const Offset(0.035, 0),
-      GpMascotState.celebrate => const Offset(0, -0.035),
-      _ => Offset.zero,
-    };
-  }
-}
-
-extension on GpMascotContext {
-  Color get accentColor {
-    return switch (this) {
-      GpMascotContext.defaultOutfit => AppColors.gpaCrimson,
-      GpMascotContext.robotics => AreaColors.robotics,
-      GpMascotContext.cutting => AreaColors.cutting,
-      GpMascotContext.manufacturing => AreaColors.manufacturing,
-      GpMascotContext.machinery => AreaColors.machinery,
-      GpMascotContext.software => AreaColors.software,
-      GpMascotContext.careers => AreaColors.careers,
-    };
-  }
+  @override
+  State<GpMascot> createState() => _GpMascotState();
 }
