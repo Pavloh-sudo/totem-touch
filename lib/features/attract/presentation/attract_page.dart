@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/configuration/asset_paths.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/cards/industrial_panel.dart';
+import '../../../shared/cards/gpa_surface_card.dart';
 
 class AttractPage extends StatelessWidget {
   const AttractPage({super.key});
@@ -30,21 +30,24 @@ class AttractPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 28),
-                Text('Tótem interactivo\nGPA', style: textTheme.displayLarge),
+                Text(
+                  'Descubre todo lo que hacemos en GPA',
+                  style: textTheme.displayLarge,
+                ),
                 const SizedBox(height: 24),
                 Text(
-                  'Base del proyecto lista para comenzar con las pantallas.',
+                  'Conoce nuestras áreas, proyectos y oportunidades.',
                   style: textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 40),
-                const _ProjectStatus(),
+                const _WelcomeMessage(),
               ],
             ),
           ),
           const SizedBox(width: 56),
           Expanded(
             flex: 4,
-            child: IndustrialPanel(
+            child: GpaSurfaceCard(
               child: Center(
                 child: Image.asset(
                   AssetPaths.gpaLogo,
@@ -60,32 +63,23 @@ class AttractPage extends StatelessWidget {
   }
 }
 
-class _ProjectStatus extends StatelessWidget {
-  const _ProjectStatus();
+class _WelcomeMessage extends StatelessWidget {
+  const _WelcomeMessage();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GpaSurfaceCard(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceRaised,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.steel.withValues(alpha: 0.35)),
-      ),
       child: const Row(
         children: [
-          Icon(
-            Icons.check_circle_rounded,
-            color: AppColors.successGreen,
-            size: 28,
-          ),
+          Icon(Icons.auto_awesome_rounded, color: AppColors.techCyan, size: 28),
           SizedBox(width: 12),
           Expanded(
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                'Flutter Web · 1024 × 768',
+                'Todo en un solo lugar',
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 18,

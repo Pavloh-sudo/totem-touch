@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/configuration/kiosk_configuration.dart';
 import '../core/theme/app_colors.dart';
+import '../shared/widgets/technical_background.dart';
 
 class KioskShell extends StatelessWidget {
   const KioskShell({required this.child, super.key});
@@ -19,10 +20,7 @@ class KioskShell extends StatelessWidget {
             child: SizedBox(
               width: KioskConfiguration.designWidth,
               height: KioskConfiguration.designHeight,
-              child: ColoredBox(
-                color: AppColors.background,
-                child: SafeArea(child: child),
-              ),
+              child: TechnicalBackground(child: SafeArea(child: child)),
             ),
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../configuration/kiosk_configuration.dart';
 import 'app_colors.dart';
+import 'app_surfaces.dart';
 import 'app_typography.dart';
 
 abstract final class AppTheme {
@@ -36,7 +37,7 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(AppSurfaces.radius),
           side: BorderSide(color: AppColors.steel.withValues(alpha: 0.28)),
         ),
       ),

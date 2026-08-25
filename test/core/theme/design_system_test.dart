@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:totem_touch/core/theme/app_colors.dart';
+import 'package:totem_touch/core/theme/app_surfaces.dart';
 import 'package:totem_touch/core/theme/app_theme.dart';
 import 'package:totem_touch/core/theme/app_typography.dart';
 import 'package:totem_touch/core/theme/area_colors.dart';
@@ -33,6 +34,17 @@ void main() {
       expect(AreaColors.careers, AppColors.successGreen);
       expect(AreaColors.maximumCardCoverage, lessThanOrEqualTo(0.15));
       expect(AreaColors.glowOpacity, 0.06);
+    });
+
+    test('mantiene las tarjetas ligeras y marca la selección en rojo', () {
+      final normal = AppSurfaces.card();
+      final selected = AppSurfaces.card(selected: true);
+
+      expect(AppSurfaces.radius, 20);
+      expect(normal.borderRadius, BorderRadius.circular(20));
+      expect(normal.boxShadow?.single.blurRadius, 12);
+      expect((selected.border! as Border).top.color, AppColors.gpaCrimson);
+      expect(selected.boxShadow?.first.blurRadius, 18);
     });
   });
 }
