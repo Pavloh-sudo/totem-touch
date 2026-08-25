@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  static const outerBackground = Color(0xFF050506);
-  static const background = Color(0xFF101113);
-  static const surface = Color(0xFF1A1C1F);
-  static const surfaceRaised = Color(0xFF24272B);
-  static const gpaRed = Color(0xFFE30613);
-  static const steel = Color(0xFF92979D);
-  static const textPrimary = Color(0xFFF5F5F3);
-  static const textSecondary = Color(0xFFBEC2C6);
+  static const gpaCrimson = Color(0xFFD92B32);
+  static const brightCrimson = Color(0xFFFF5158);
+  static const carbon = Color(0xFF1D2127);
+  static const graphite = Color(0xFF515A64);
+  static const steel = Color(0xFF9199A2);
+  static const porcelain = Color(0xFFF7F8FA);
+  static const pureWhite = Color(0xFFFFFFFF);
+  static const techCyan = Color(0xFF19A7B8);
+  static const successGreen = Color(0xFF24976F);
+
+  static const outerBackground = carbon;
+  static const background = porcelain;
+  static const surface = pureWhite;
+  static const surfaceRaised = pureWhite;
+  static const textPrimary = carbon;
+  static const textSecondary = graphite;
 }

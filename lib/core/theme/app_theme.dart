@@ -2,40 +2,68 @@ import 'package:flutter/material.dart';
 
 import '../configuration/kiosk_configuration.dart';
 import 'app_colors.dart';
+import 'app_typography.dart';
 
 abstract final class AppTheme {
   static ThemeData get kiosk {
-    const colorScheme = ColorScheme.dark(
-      primary: AppColors.gpaRed,
-      onPrimary: Colors.white,
-      surface: AppColors.surface,
-      onSurface: AppColors.textPrimary,
-      secondary: AppColors.steel,
-      onSecondary: Colors.black,
+    const colorScheme = ColorScheme.light(
+      primary: AppColors.gpaCrimson,
+      onPrimary: AppColors.pureWhite,
+      secondary: AppColors.techCyan,
+      onSecondary: AppColors.pureWhite,
+      surface: AppColors.pureWhite,
+      onSurface: AppColors.carbon,
+      error: AppColors.gpaCrimson,
+      onError: AppColors.pureWhite,
+    );
+
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(18),
+      borderSide: const BorderSide(color: AppColors.steel),
     );
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: AppTypography.family,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.background,
       splashFactory: InkRipple.splashFactory,
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 56,
-          height: 1.05,
-          fontWeight: FontWeight.w800,
+      textTheme: AppTypography.textTheme,
+      iconTheme: const IconThemeData(color: AppColors.carbon),
+      dividerColor: AppColors.steel,
+      cardTheme: CardThemeData(
+        color: AppColors.pureWhite,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: AppColors.steel.withValues(alpha: 0.28)),
         ),
-        headlineMedium: TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 30,
-          fontWeight: FontWeight.w700,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.pureWhite,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 22,
+          vertical: 20,
         ),
-        bodyLarge: TextStyle(
+        labelStyle: AppTypography.label.copyWith(
           color: AppColors.textSecondary,
-          fontSize: 20,
-          height: 1.4,
         ),
+        hintStyle: AppTypography.field.copyWith(color: AppColors.steel),
+        border: border,
+        enabledBorder: border,
+        focusedBorder: border.copyWith(
+          borderSide: const BorderSide(color: AppColors.gpaCrimson, width: 2),
+        ),
+        errorBorder: border.copyWith(
+          borderSide: const BorderSide(color: AppColors.gpaCrimson),
+        ),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: AppColors.gpaCrimson,
+        selectionColor: Color(0x33D92B32),
+        selectionHandleColor: AppColors.gpaCrimson,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -43,9 +71,12 @@ abstract final class AppTheme {
             KioskConfiguration.minimumTouchTarget,
             KioskConfiguration.primaryControlHeight,
           ),
-          backgroundColor: AppColors.gpaRed,
-          foregroundColor: Colors.white,
-          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          backgroundColor: AppColors.gpaCrimson,
+          foregroundColor: AppColors.pureWhite,
+          disabledBackgroundColor: AppColors.steel,
+          disabledForegroundColor: AppColors.pureWhite,
+          textStyle: AppTypography.button,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),

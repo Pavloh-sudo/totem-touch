@@ -13,12 +13,12 @@ class IndustrialPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: AppColors.steel.withValues(alpha: 0.22)),
-        boxShadow: const [
+        border: Border.all(color: AppColors.steel.withValues(alpha: 0.3)),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black38,
-            blurRadius: 36,
-            offset: Offset(0, 16),
+            color: AppColors.carbon.withValues(alpha: 0.1),
+            blurRadius: 32,
+            offset: const Offset(0, 14),
           ),
         ],
       ),

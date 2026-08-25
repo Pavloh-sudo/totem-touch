@@ -31,3 +31,5 @@ lib/
 ```
 
 Las imágenes proporcionadas para diseño se conservan en `assets/branding` y `docs/referencias`.
+
+La tipografía Manrope y su licencia están alojadas localmente en `assets/fonts/manrope`; la aplicación no descarga fuentes ni imágenes desde un CDN.

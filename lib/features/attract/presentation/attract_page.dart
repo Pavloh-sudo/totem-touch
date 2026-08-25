@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/configuration/asset_paths.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/cards/industrial_panel.dart';
 
@@ -24,7 +25,7 @@ class AttractPage extends StatelessWidget {
                   width: 72,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: AppColors.gpaRed,
+                    color: AppColors.gpaCrimson,
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
@@ -46,7 +47,7 @@ class AttractPage extends StatelessWidget {
             child: IndustrialPanel(
               child: Center(
                 child: Image.asset(
-                  'assets/branding/logo-gpa.png',
+                  AssetPaths.gpaLogo,
                   width: 270,
                   semanticLabel: 'Logo de GPA',
                 ),
@@ -69,11 +70,15 @@ class _ProjectStatus extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surfaceRaised,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.steel.withValues(alpha: 0.25)),
+        border: Border.all(color: AppColors.steel.withValues(alpha: 0.35)),
       ),
       child: const Row(
         children: [
-          Icon(Icons.check_circle_rounded, color: AppColors.gpaRed, size: 28),
+          Icon(
+            Icons.check_circle_rounded,
+            color: AppColors.successGreen,
+            size: 28,
+          ),
           SizedBox(width: 12),
           Expanded(
             child: FittedBox(
