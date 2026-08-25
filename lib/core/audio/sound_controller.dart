@@ -60,7 +60,7 @@ class SoundController extends ChangeNotifier {
     await play(firstSound);
   }
 
-  Future<void> play(SoundEffect sound) async {
+  Future<void> play(SoundEffect sound, {double volumeScale = 1}) async {
     if (_disposed || !_unlocked || _muted) return;
 
     final request = ++_playRequest;
@@ -70,7 +70,9 @@ class SoundController extends ChangeNotifier {
 
       await _engine.play(
         sound.assetPath,
-        (_volume * sound.relativeVolume).clamp(0.0, 1.0).toDouble(),
+        (_volume * sound.relativeVolume * volumeScale)
+            .clamp(0.0, 1.0)
+            .toDouble(),
       );
     } on Object catch (error, stackTrace) {
       debugPrint('No se pudo reproducir ${sound.name}: $error');

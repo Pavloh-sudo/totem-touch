@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../core/animations/app_motion.dart';
 import '../core/configuration/kiosk_configuration.dart';
+import '../data/models/visitor_registration.dart';
 import '../features/attract/presentation/attract_page.dart';
+import '../features/interests/presentation/interests_page.dart';
 import '../features/registration/presentation/registration_page.dart';
 import '../shared/feedback/gpa_progress_indicator.dart';
 import 'kiosk_shell.dart';
@@ -10,10 +12,12 @@ import 'kiosk_shell.dart';
 abstract final class AppRouter {
   static const attract = '/';
   static const registration = '/registro';
+  static const interests = '/intereses';
 
   static Route<void> onGenerateRoute(RouteSettings settings) {
     return switch (settings.name) {
       registration => _registrationRoute(settings),
+      interests => _interestsRoute(settings),
       _ => _attractRoute(settings),
     };
   }
@@ -56,11 +60,53 @@ abstract final class AppRouter {
             onBack: () {
               Navigator.of(context).pop();
             },
+            onContinue: (registrationData) async {
+              await Navigator.of(
+                context,
+              ).pushNamed(interests, arguments: registrationData);
+            },
           ),
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return _RegistrationEnterTransition(animation: animation, child: child);
+      },
+    );
+  }
+
+  static Route<void> _interestsRoute(RouteSettings settings) {
+    final registrationData = settings.arguments;
+    if (registrationData is! VisitorRegistration) {
+      return _registrationRoute(const RouteSettings(name: registration));
+    }
+    return PageRouteBuilder<void>(
+      settings: settings,
+      transitionDuration: AppMotion.screen,
+      reverseTransitionDuration: AppMotion.screen,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return KioskShell(
+          progressStage: KioskProgressStage.interest,
+          child: InterestsPage(
+            registration: registrationData,
+            onBack: () => Navigator.of(context).pop(),
+          ),
+        );
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final progress = CurvedAnimation(
+          parent: animation,
+          curve: AppMotion.standardCurve,
+        );
+        return FadeTransition(
+          opacity: progress,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 14 / 768),
+              end: Offset.zero,
+            ).animate(progress),
+            child: child,
+          ),
+        );
       },
     );
   }

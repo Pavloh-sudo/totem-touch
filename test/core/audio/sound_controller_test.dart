@@ -52,4 +52,17 @@ void main() {
     expect(controller.isMuted, isTrue);
     expect(engine.playCalls, hasLength(1));
   });
+
+  test('permite bajar el volumen de una interacción puntual', () async {
+    final engine = FakeSoundPlaybackEngine();
+    final controller = SoundController(engine: engine);
+    addTearDown(controller.dispose);
+    await controller.unlock();
+    engine.playCalls.clear();
+
+    await controller.play(SoundEffect.selection, volumeScale: 2 / 3);
+
+    expect(engine.playCalls.single.$1, 'audio/ui_select.wav');
+    expect(engine.playCalls.single.$2, closeTo(0.20, 0.0001));
+  });
 }

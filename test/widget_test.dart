@@ -53,7 +53,7 @@ void main() {
     expect(registrationOpacity.opacity, inExclusiveRange(0, 1));
 
     await tester.pump(const Duration(milliseconds: 210));
-    expect(find.text('Cuéntanos un poco sobre ti'), findsOneWidget);
+    expect(find.text('Primero, queremos conocerte.'), findsOneWidget);
     expect(
       tester
           .widget<Opacity>(

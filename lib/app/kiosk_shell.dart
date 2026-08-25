@@ -42,6 +42,7 @@ class _KioskShellState extends State<KioskShell> {
   late final SoundController _soundController;
   Timer? _warningTimer;
   Timer? _expirationTimer;
+  bool _isActive = true;
 
   @override
   void initState() {
@@ -60,13 +61,27 @@ class _KioskShellState extends State<KioskShell> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isActive = TickerMode.valuesOf(context).enabled;
+    if (_isActive == isActive) return;
+    _isActive = isActive;
+    if (_isActive) {
+      _scheduleInactivity();
+    } else {
+      _cancelInactivity();
+    }
+  }
+
   void _registerActivity(PointerDownEvent event) {
     _scheduleInactivity();
   }
 
   void _scheduleInactivity() {
-    _warningTimer?.cancel();
-    _expirationTimer?.cancel();
+    _cancelInactivity();
+
+    if (!_isActive) return;
 
     final timeout = widget.inactivityTimeout;
     if (timeout == null) return;
@@ -76,6 +91,13 @@ class _KioskShellState extends State<KioskShell> {
       _warningTimer = Timer(warningDelay, _warnAboutInactivity);
     }
     _expirationTimer = Timer(timeout, _expireSession);
+  }
+
+  void _cancelInactivity() {
+    _warningTimer?.cancel();
+    _expirationTimer?.cancel();
+    _warningTimer = null;
+    _expirationTimer = null;
   }
 
   void _warnAboutInactivity() {
@@ -147,8 +169,7 @@ class _KioskShellState extends State<KioskShell> {
 
   @override
   void dispose() {
-    _warningTimer?.cancel();
-    _expirationTimer?.cancel();
+    _cancelInactivity();
     super.dispose();
   }
 }
