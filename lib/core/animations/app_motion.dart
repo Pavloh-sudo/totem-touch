@@ -29,6 +29,7 @@ abstract final class AppMotion {
   static const interestCardStagger = Duration(milliseconds: 35);
   static const interestSelected = Duration(milliseconds: 130);
   static const interestUnselected = Duration(milliseconds: 160);
+  static const interestSaving = Duration(milliseconds: 420);
 
   static const touchDown = instant;
   static const touchUp = fast;

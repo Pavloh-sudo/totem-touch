@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../core/animations/app_motion.dart';
 import '../core/configuration/kiosk_configuration.dart';
+import '../data/local/memory_interest_submission_repository.dart';
+import '../data/models/interest_submission.dart';
 import '../data/models/visitor_registration.dart';
 import '../features/attract/presentation/attract_page.dart';
 import '../features/interests/presentation/interests_screen.dart';
 import '../features/registration/presentation/registration_page.dart';
+import '../features/success/presentation/success_page.dart';
 import '../shared/feedback/gpa_progress_indicator.dart';
 import 'kiosk_shell.dart';
 
@@ -13,11 +16,15 @@ abstract final class AppRouter {
   static const attract = '/';
   static const registration = '/registro';
   static const interests = '/intereses';
+  static const success = '/gracias';
+
+  static final _interestRepository = MemoryInterestSubmissionRepository();
 
   static Route<void> onGenerateRoute(RouteSettings settings) {
     return switch (settings.name) {
       registration => _registrationRoute(settings),
       interests => _interestsRoute(settings),
+      success => _successRoute(settings),
       _ => _attractRoute(settings),
     };
   }
@@ -86,7 +93,13 @@ abstract final class AppRouter {
       pageBuilder: (context, animation, secondaryAnimation) {
         return InterestsScreen(
           registration: registrationData,
+          repository: _interestRepository,
           onBack: () => Navigator.of(context).pop(),
+          onCompleted: (submission) async {
+            await Navigator.of(
+              context,
+            ).pushReplacementNamed(success, arguments: submission);
+          },
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -101,6 +114,41 @@ abstract final class AppRouter {
               begin: const Offset(0, 14 / 768),
               end: Offset.zero,
             ).animate(progress),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+
+  static Route<void> _successRoute(RouteSettings settings) {
+    final submission = settings.arguments;
+    if (submission is! InterestSubmission) return _attractRoute(settings);
+
+    return PageRouteBuilder<void>(
+      settings: settings,
+      transitionDuration: AppMotion.screen,
+      reverseTransitionDuration: AppMotion.screen,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return KioskShell(
+          progressStage: KioskProgressStage.done,
+          child: SuccessPage(
+            submission: submission,
+            onFinish: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+          ),
+        );
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final progress = CurvedAnimation(
+          parent: animation,
+          curve: AppMotion.standardCurve,
+        );
+        return FadeTransition(
+          opacity: progress,
+          child: ScaleTransition(
+            scale: Tween(begin: 0.98, end: 1.0).animate(progress),
             child: child,
           ),
         );

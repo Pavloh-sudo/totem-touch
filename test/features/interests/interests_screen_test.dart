@@ -3,10 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:totem_touch/core/animations/app_motion.dart';
 import 'package:totem_touch/core/audio/sound_controller.dart';
 import 'package:totem_touch/core/theme/app_theme.dart';
+import 'package:totem_touch/data/local/memory_interest_submission_repository.dart';
+import 'package:totem_touch/data/models/interest_submission.dart';
 import 'package:totem_touch/data/models/visitor_registration.dart';
-import 'package:totem_touch/features/interests/domain/interest_area.dart';
+import 'package:totem_touch/features/interests/domain/interest_tree.dart';
 import 'package:totem_touch/features/interests/presentation/interests_screen.dart';
-import 'package:totem_touch/features/interests/presentation/widgets/interest_area_card.dart';
+import 'package:totem_touch/features/interests/presentation/widgets/interest_option_card.dart';
+import 'package:totem_touch/features/interests/presentation/widgets/interest_options_grid.dart';
+import 'package:totem_touch/shared/feedback/gpa_progress_indicator.dart';
 
 import '../../helpers/fake_sound_playback_engine.dart';
 
@@ -22,7 +26,8 @@ void main() {
 
   Future<void> pumpScreen(
     WidgetTester tester, {
-    Future<void> Function(InterestArea area)? onSelected,
+    required MemoryInterestSubmissionRepository repository,
+    required Future<void> Function(InterestSubmission submission) onCompleted,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(1024, 768);
@@ -34,8 +39,9 @@ void main() {
         theme: AppTheme.kiosk,
         home: InterestsScreen(
           registration: registration,
+          repository: repository,
           onBack: () {},
-          onSelected: onSelected,
+          onCompleted: onCompleted,
         ),
       ),
     );
@@ -48,72 +54,115 @@ void main() {
   testWidgets('acomoda las seis áreas en una cuadrícula de 3 por 2', (
     tester,
   ) async {
-    await pumpScreen(tester);
+    await pumpScreen(
+      tester,
+      repository: MemoryInterestSubmissionRepository(),
+      onCompleted: (_) async {},
+    );
     await tester.pump(
       (AppMotion.interestCardStagger * 5) + AppMotion.interestCardEntry,
     );
 
     expect(find.text('¿Qué te gustaría explorar?'), findsOneWidget);
     expect(find.text('Elige el área que más te interesa.'), findsOneWidget);
-    for (final area in InterestArea.values) {
-      expect(find.text(area.title), findsOneWidget);
-      expect(find.text(area.description), findsOneWidget);
+    for (final node in InterestTree.roots) {
+      expect(find.text(node.title), findsOneWidget);
+      expect(find.text(node.description), findsOneWidget);
     }
 
-    final cards = find.byType(InterestAreaCard);
+    final cards = find.byType(InterestOptionCard);
     expect(cards, findsNWidgets(6));
     expect(tester.getSize(cards.first), const Size(296, 166));
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('las tarjetas entran con 35 ms de diferencia', (tester) async {
-    await pumpScreen(tester);
-    await tester.pump(const Duration(milliseconds: 1));
-    await tester.pump(const Duration(milliseconds: 32));
-
-    final firstOpacity = tester.widget<Opacity>(
-      find.byKey(const ValueKey('interest-entry-robotics')),
-    );
-    final secondOpacity = tester.widget<Opacity>(
-      find.byKey(const ValueKey('interest-entry-cutting')),
-    );
-    expect(firstOpacity.opacity, greaterThan(0));
-    expect(secondOpacity.opacity, 0);
-  });
-
-  testWidgets('selecciona, atenúa las demás y cambia el contexto de GP', (
+  testWidgets('abre los once hijos con breadcrumb, detalle y grid compacto', (
     tester,
   ) async {
-    InterestArea? result;
-    await pumpScreen(tester, onSelected: (area) async => result = area);
+    await pumpScreen(
+      tester,
+      repository: MemoryInterestSubmissionRepository(),
+      onCompleted: (_) async {},
+    );
     await tester.pump(
       (AppMotion.interestCardStagger * 5) + AppMotion.interestCardEntry,
     );
 
-    await tester.tap(find.text(InterestArea.robotics.title));
-    await tester.pump();
-
-    InterestAreaCard card(InterestArea area) {
-      return tester.widget<InterestAreaCard>(
-        find.ancestor(
-          of: find.text(area.title),
-          matching: find.byType(InterestAreaCard),
-        ),
-      );
-    }
-
-    expect(card(InterestArea.robotics).selected, isTrue);
-    expect(card(InterestArea.cutting).dimmed, isTrue);
-    expect(
-      find.byKey(const ValueKey('gp-head-accessory-robotics')),
-      findsOneWidget,
-    );
-
+    final robotics = InterestTree.roots.first;
+    await tester.tap(find.text(robotics.title));
+    await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
     await tester.pump(
-      AppMotion.interestUnselected - const Duration(milliseconds: 1),
+      (AppMotion.interestCardStagger * 10) + AppMotion.interestCardEntry,
     );
-    expect(result, isNull);
-    await tester.pump(const Duration(milliseconds: 1));
-    expect(result, InterestArea.robotics);
+
+    expect(find.text(robotics.title), findsOneWidget);
+    expect(find.text('¿Qué opción te interesa?'), findsOneWidget);
+    for (final node in robotics.children) {
+      expect(find.text(node.title), findsOneWidget);
+    }
+    final cards = find.byType(InterestOptionCard);
+    expect(cards, findsNWidgets(11));
+    expect(tester.getSize(cards.first), const Size(221.5, 132));
+    expect(
+      tester
+          .widget<GpaProgressIndicator>(find.byType(GpaProgressIndicator))
+          .stage,
+      KioskProgressStage.detail,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'una hoja se guarda una sola vez y muestra el check antes de éxito',
+    (tester) async {
+      final repository = MemoryInterestSubmissionRepository();
+      InterestSubmission? completed;
+      await pumpScreen(
+        tester,
+        repository: repository,
+        onCompleted: (submission) async => completed = submission,
+      );
+      await tester.pump(
+        (AppMotion.interestCardStagger * 5) + AppMotion.interestCardEntry,
+      );
+
+      final cutting = InterestTree.roots[1];
+      await tester.tap(find.text(cutting.title));
+      await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+      await tester.pump(
+        (AppMotion.interestCardStagger * 3) + AppMotion.interestCardEntry,
+      );
+      final leaf = cutting.children.first;
+
+      await tester.tap(find.text(leaf.title));
+      await tester.tap(find.text(leaf.title));
+      await tester.pump(AppMotion.interestUnselected);
+
+      expect(repository.submissions, hasLength(1));
+      expect(
+        find.byKey(const ValueKey('interest-saving-check')),
+        findsOneWidget,
+      );
+      expect(completed, isNull);
+
+      await tester.pump(
+        AppMotion.interestSaving - const Duration(milliseconds: 1),
+      );
+      expect(completed, isNull);
+      await tester.pump(const Duration(milliseconds: 1));
+
+      expect(completed, isNotNull);
+      expect(completed!.pathIds, [cutting.id, leaf.id]);
+      expect(completed!.finalInterest, leaf.title);
+      expect(repository.submissions, hasLength(1));
+    },
+  );
+
+  test('elige columnas automáticamente según la cantidad de opciones', () {
+    expect(InterestGridMetrics.resolve(2).columns, 2);
+    expect(InterestGridMetrics.resolve(4).columns, 2);
+    expect(InterestGridMetrics.resolve(6).columns, 3);
+    expect(InterestGridMetrics.resolve(9).columns, 3);
+    expect(InterestGridMetrics.resolve(11).columns, 4);
   });
 }
