@@ -25,12 +25,35 @@ abstract final class _GpAssetRig {
       armLeftCelebrate: _asset('arm_left_celebrate.png'),
       armRightCelebrate: _asset('arm_right_celebrate.png'),
       shadow: _asset('shadow.png'),
-      headAccessories: null,
-      foreground: null,
+      headAccessories: _headAccessoriesFor(mascotContext),
+      foreground: _foregroundFor(mascotContext),
       headAlignment: headAlignment,
       armLeftAlignment: armLeftAlignment,
       armRightAlignment: armRightAlignment,
     );
+  }
+
+  static Widget? _headAccessoriesFor(GpMascotContext mascotContext) {
+    return switch (mascotContext) {
+      GpMascotContext.robotics || GpMascotContext.cutting => CustomPaint(
+        key: ValueKey('gp-head-accessory-${mascotContext.name}'),
+        painter: _GpContextAccessoryPainter(mascotContext),
+      ),
+      _ => null,
+    };
+  }
+
+  static Widget? _foregroundFor(GpMascotContext mascotContext) {
+    return switch (mascotContext) {
+      GpMascotContext.manufacturing ||
+      GpMascotContext.machinery ||
+      GpMascotContext.software ||
+      GpMascotContext.careers => CustomPaint(
+        key: ValueKey('gp-foreground-${mascotContext.name}'),
+        painter: _GpContextAccessoryPainter(mascotContext),
+      ),
+      _ => null,
+    };
   }
 
   static Widget _asset(String fileName) {

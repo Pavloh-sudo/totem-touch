@@ -25,6 +25,11 @@ abstract final class AppMotion {
   static const keyboardBackspaceRepeat = Duration(milliseconds: 80);
   static const keyboardToScreen = Duration(milliseconds: 100);
 
+  static const interestCardEntry = standard;
+  static const interestCardStagger = Duration(milliseconds: 35);
+  static const interestSelected = Duration(milliseconds: 130);
+  static const interestUnselected = Duration(milliseconds: 160);
+
   static const touchDown = instant;
   static const touchUp = fast;
   static const ripple = Duration(milliseconds: 320);

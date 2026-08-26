@@ -4,7 +4,7 @@ import '../core/animations/app_motion.dart';
 import '../core/configuration/kiosk_configuration.dart';
 import '../data/models/visitor_registration.dart';
 import '../features/attract/presentation/attract_page.dart';
-import '../features/interests/presentation/interests_page.dart';
+import '../features/interests/presentation/interests_screen.dart';
 import '../features/registration/presentation/registration_page.dart';
 import '../shared/feedback/gpa_progress_indicator.dart';
 import 'kiosk_shell.dart';
@@ -84,12 +84,9 @@ abstract final class AppRouter {
       transitionDuration: AppMotion.screen,
       reverseTransitionDuration: AppMotion.screen,
       pageBuilder: (context, animation, secondaryAnimation) {
-        return KioskShell(
-          progressStage: KioskProgressStage.interest,
-          child: InterestsPage(
-            registration: registrationData,
-            onBack: () => Navigator.of(context).pop(),
-          ),
+        return InterestsScreen(
+          registration: registrationData,
+          onBack: () => Navigator.of(context).pop(),
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {

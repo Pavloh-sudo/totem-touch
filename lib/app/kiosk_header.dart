@@ -15,6 +15,7 @@ class KioskHeader extends StatelessWidget {
     this.progressStage,
     this.height = KioskConfiguration.headerHeight,
     this.logoSize = 50,
+    this.companion,
     super.key,
   });
 
@@ -22,6 +23,7 @@ class KioskHeader extends StatelessWidget {
   final KioskProgressStage? progressStage;
   final double height;
   final double logoSize;
+  final Widget? companion;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +57,11 @@ class KioskHeader extends StatelessWidget {
                       stage: progressStage!,
                     ),
             ),
+            if (companion != null)
+              Positioned(
+                right: KioskConfiguration.iconControlSize + 18,
+                child: companion!,
+              ),
             Align(
               alignment: Alignment.centerRight,
               child: ListenableBuilder(

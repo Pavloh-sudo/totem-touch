@@ -9,6 +9,7 @@ import '../../core/theme/area_colors.dart';
 
 part 'src/gp_mascot_artwork.dart';
 part 'src/gp_mascot_assets.dart';
+part 'src/gp_mascot_context_accessories.dart';
 part 'src/gp_mascot_motion.dart';
 part 'src/gp_mascot_state.dart';
 part 'src/gp_mascot_timing.dart';

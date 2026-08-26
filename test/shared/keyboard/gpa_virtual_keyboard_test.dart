@@ -58,9 +58,7 @@ void main() {
     expect(height(), 0);
   });
 
-  testWidgets('correo tiene shortcuts y las teclas usan volumen bajo', (
-    tester,
-  ) async {
+  testWidgets('correo tiene números, shortcuts y volumen bajo', (tester) async {
     final engine = FakeSoundPlaybackEngine();
     final controller = SoundController(engine: engine);
     addTearDown(controller.dispose);
@@ -92,11 +90,23 @@ void main() {
     expect(find.text('@gmail.com'), findsOneWidget);
     expect(find.text('@outlook.com'), findsOneWidget);
 
+    await tester.tap(find.text('123'));
+    await tester.pump();
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text('ABC'), findsOneWidget);
+    expect(find.text('@hotmail.com'), findsOneWidget);
+    await tester.tap(find.text('1'));
+    await tester.pump();
+    expect(value, '1');
+
+    await tester.tap(find.text('ABC'));
+    await tester.pump();
+
     await tester.tap(find.text('@gmail.com'));
     await tester.pump();
-    expect(value, '@gmail.com');
-    expect(engine.playCalls.single.$1, 'audio/ui_tap.wav');
-    expect(engine.playCalls.single.$2, closeTo(0.135, 0.0001));
+    expect(value, '1@gmail.com');
+    expect(engine.playCalls.last.$1, 'audio/ui_tap.wav');
+    expect(engine.playCalls.last.$2, closeTo(0.135, 0.0001));
   });
 
   testWidgets('backspace repite después de mantenerlo 450 ms', (tester) async {

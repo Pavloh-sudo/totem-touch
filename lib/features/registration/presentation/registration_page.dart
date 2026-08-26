@@ -91,14 +91,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
   bool get _contactValid => _emailValid && _phoneValid;
 
   String? get _nameError {
-    if (!_interactedFields.contains(_RegistrationField.name) || _nameValid) {
+    if (_activeField == _RegistrationField.name ||
+        !_interactedFields.contains(_RegistrationField.name) ||
+        _nameValid) {
       return null;
     }
     return 'Escribe tu nombre para continuar.';
   }
 
   String? get _organizationError {
-    if (!_interactedFields.contains(_RegistrationField.organization) ||
+    if (_activeField == _RegistrationField.organization ||
+        !_interactedFields.contains(_RegistrationField.organization) ||
         _organizationValid) {
       return null;
     }
@@ -106,7 +109,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   String? get _emailError {
-    if (!_interactedFields.contains(_RegistrationField.email) || _emailValid) {
+    if (_activeField == _RegistrationField.email ||
+        !_interactedFields.contains(_RegistrationField.email) ||
+        _emailValid) {
       return null;
     }
     if (_emailController.text.isEmpty) {
@@ -116,7 +121,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   String? get _phoneError {
-    if (!_interactedFields.contains(_RegistrationField.phone) || _phoneValid) {
+    if (_activeField == _RegistrationField.phone ||
+        !_interactedFields.contains(_RegistrationField.phone) ||
+        _phoneValid) {
       return null;
     }
     if (_phoneController.text.isEmpty) {
@@ -191,7 +198,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
       controller.selection = TextSelection.collapsed(
         offset: controller.text.length,
       );
-      _interactedFields.add(field);
     });
   }
 
@@ -208,7 +214,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
       controller.selection = TextSelection.collapsed(
         offset: controller.text.length,
       );
-      _interactedFields.add(field);
     });
   }
 

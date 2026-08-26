@@ -21,6 +21,7 @@ class KioskShell extends StatefulWidget {
     this.soundController,
     this.headerHeight = KioskConfiguration.headerHeight,
     this.logoSize = 50,
+    this.headerCompanion,
     super.key,
   });
 
@@ -33,6 +34,7 @@ class KioskShell extends StatefulWidget {
   final SoundController? soundController;
   final double headerHeight;
   final double logoSize;
+  final Widget? headerCompanion;
 
   @override
   State<KioskShell> createState() => _KioskShellState();
@@ -142,6 +144,7 @@ class _KioskShellState extends State<KioskShell> {
                               progressStage: widget.progressStage,
                               height: widget.headerHeight,
                               logoSize: widget.logoSize,
+                              companion: widget.headerCompanion,
                             ),
                             Expanded(
                               child: Padding(

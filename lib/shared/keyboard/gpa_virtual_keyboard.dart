@@ -78,7 +78,7 @@ class GpaVirtualKeyboard extends StatelessWidget {
   }
 }
 
-class _KeyboardSurface extends StatelessWidget {
+class _KeyboardSurface extends StatefulWidget {
   const _KeyboardSurface({
     required this.layout,
     required this.onText,
@@ -92,8 +92,23 @@ class _KeyboardSurface extends StatelessWidget {
   final VoidCallback onDone;
 
   @override
+  State<_KeyboardSurface> createState() => _KeyboardSurfaceState();
+}
+
+class _KeyboardSurfaceState extends State<_KeyboardSurface> {
+  bool _showEmailNumbers = false;
+
+  @override
+  void didUpdateWidget(covariant _KeyboardSurface oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.layout != widget.layout && _showEmailNumbers) {
+      _showEmailNumbers = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final rows = _rowsFor(layout);
+    final rows = _rowsFor(widget.layout);
     final keyboard = Container(
       height: 268,
       padding: const EdgeInsets.all(12),
@@ -140,7 +155,7 @@ class _KeyboardSurface extends StatelessWidget {
       ),
     );
 
-    if (layout != GpaKeyboardLayout.numeric) return keyboard;
+    if (widget.layout != GpaKeyboardLayout.numeric) return keyboard;
     return Center(child: SizedBox(width: 440, child: keyboard));
   }
 
@@ -149,14 +164,26 @@ class _KeyboardSurface extends StatelessWidget {
       _KeyboardAction.text => _KeyboardKey(
         label: key.label,
         compact: key.compact,
-        onTap: () => onText(key.value!),
+        onTap: () => widget.onText(key.value!),
       ),
-      _KeyboardAction.backspace => _BackspaceKey(onBackspace: onBackspace),
+      _KeyboardAction.backspace => _BackspaceKey(
+        onBackspace: widget.onBackspace,
+      ),
       _KeyboardAction.done => _KeyboardKey(
         icon: Icons.check_rounded,
         semanticLabel: 'Listo',
         accent: true,
-        onTap: onDone,
+        onTap: widget.onDone,
+      ),
+      _KeyboardAction.numbers => _KeyboardKey(
+        label: '123',
+        semanticLabel: 'Mostrar números',
+        onTap: () => setState(() => _showEmailNumbers = true),
+      ),
+      _KeyboardAction.letters => _KeyboardKey(
+        label: 'ABC',
+        semanticLabel: 'Mostrar letras',
+        onTap: () => setState(() => _showEmailNumbers = false),
       ),
     };
   }
@@ -172,11 +199,12 @@ class _KeyboardSurface extends StatelessWidget {
           _KeyboardKeySpec.done(flex: 2),
         ],
       ],
-      GpaKeyboardLayout.email => [
+      GpaKeyboardLayout.email when !_showEmailNumbers => [
         _letters('qwertyuiop'),
         _letters('asdfghjkl'),
         [..._letters('zxcvbnm'), const _KeyboardKeySpec.backspace(flex: 2)],
         const [
+          _KeyboardKeySpec.numbers(),
           _KeyboardKeySpec.text('@', '@'),
           _KeyboardKeySpec.text('.', '.'),
           _KeyboardKeySpec.text('_', '_'),
@@ -190,6 +218,51 @@ class _KeyboardSurface extends StatelessWidget {
           _KeyboardKeySpec.text(
             '@outlook.com',
             '@outlook.com',
+            flex: 2,
+            compact: true,
+          ),
+          _KeyboardKeySpec.done(),
+        ],
+      ],
+      GpaKeyboardLayout.email => const [
+        [
+          _KeyboardKeySpec.text('1', '1'),
+          _KeyboardKeySpec.text('2', '2'),
+          _KeyboardKeySpec.text('3', '3'),
+          _KeyboardKeySpec.text('4', '4'),
+          _KeyboardKeySpec.text('5', '5'),
+        ],
+        [
+          _KeyboardKeySpec.text('6', '6'),
+          _KeyboardKeySpec.text('7', '7'),
+          _KeyboardKeySpec.text('8', '8'),
+          _KeyboardKeySpec.text('9', '9'),
+          _KeyboardKeySpec.text('0', '0'),
+        ],
+        [
+          _KeyboardKeySpec.text('@', '@'),
+          _KeyboardKeySpec.text('.', '.'),
+          _KeyboardKeySpec.text('_', '_'),
+          _KeyboardKeySpec.text('-', '-'),
+          _KeyboardKeySpec.backspace(),
+        ],
+        [
+          _KeyboardKeySpec.letters(),
+          _KeyboardKeySpec.text(
+            '@gmail.com',
+            '@gmail.com',
+            flex: 2,
+            compact: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@outlook.com',
+            '@outlook.com',
+            flex: 2,
+            compact: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@hotmail.com',
+            '@hotmail.com',
             flex: 2,
             compact: true,
           ),
@@ -229,7 +302,7 @@ class _KeyboardSurface extends StatelessWidget {
   }
 }
 
-enum _KeyboardAction { text, backspace, done }
+enum _KeyboardAction { text, backspace, done, numbers, letters }
 
 class _KeyboardKeySpec {
   const _KeyboardKeySpec.text(
@@ -250,6 +323,20 @@ class _KeyboardKeySpec {
       value = null,
       compact = false,
       action = _KeyboardAction.done;
+
+  const _KeyboardKeySpec.numbers()
+    : label = '123',
+      value = null,
+      flex = 1,
+      compact = false,
+      action = _KeyboardAction.numbers;
+
+  const _KeyboardKeySpec.letters()
+    : label = 'ABC',
+      value = null,
+      flex = 1,
+      compact = false,
+      action = _KeyboardAction.letters;
 
   final String label;
   final String? value;

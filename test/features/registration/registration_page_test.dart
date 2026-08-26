@@ -107,7 +107,15 @@ void main() {
     await tester.tap(field('Correo electrónico'));
     await tester.pump();
     await tester.pump(AppMotion.keyboardShow);
-    await tapKeys(tester, ['P', '@gmail.com']);
+    await tapKeys(tester, ['P']);
+    expect(find.text('Revisa el correo antes de continuar.'), findsNothing);
+    await tester.tap(find.text('123'));
+    await tester.pump();
+    await tapKeys(tester, ['1']);
+    expect(find.text('Revisa el correo antes de continuar.'), findsNothing);
+    await tester.tap(find.text('ABC'));
+    await tester.pump();
+    await tapKeys(tester, ['@gmail.com']);
 
     await tester.tap(field('Teléfono'));
     await tester.pump();
@@ -139,7 +147,7 @@ void main() {
     expect(result!.profile, VisitorProfile.student);
     expect(result!.name, 'Pablo');
     expect(result!.organization, 'Gpa');
-    expect(result!.email, 'p@gmail.com');
+    expect(result!.email, 'p1@gmail.com');
     expect(result!.phone, '1111111111');
     expect(result!.acceptsInformation, isTrue);
     expect(tester.takeException(), isNull);
