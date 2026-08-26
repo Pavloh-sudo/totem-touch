@@ -42,6 +42,10 @@ void main() {
     expect(navigator.select(leaf), same(finalResult));
     expect(navigator.selectionCount, 1);
     expect(navigator.depth, 1);
+    expect(navigator.toggleLeaf(leaf), isFalse);
+    expect(navigator.isSelected(leaf), isFalse);
+    expect(navigator.toggleLeaf(leaf), isTrue);
+    expect(navigator.isSelected(leaf), isTrue);
 
     expect(navigator.back(), isTrue);
     expect(navigator.isAtRoot, isTrue);

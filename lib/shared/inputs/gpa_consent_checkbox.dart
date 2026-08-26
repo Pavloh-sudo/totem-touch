@@ -68,7 +68,7 @@ class _GpaConsentCheckboxState extends State<GpaConsentCheckbox>
   Widget build(BuildContext context) {
     return Semantics(
       checked: widget.value,
-      label: 'Quiero recibir información de Grupo GPA',
+      label: 'Acepto compartir mis datos con Grupo GPA. Campo requerido',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: _toggle,
@@ -122,13 +122,38 @@ class _GpaConsentCheckboxState extends State<GpaConsentCheckbox>
               ),
               const SizedBox(width: 14),
               Expanded(
-                child: Text(
-                  'Quiero recibir información de Grupo GPA relacionada con '
-                  'los temas que seleccione.',
-                  style: AppTypography.label.copyWith(
-                    color: AppColors.carbon,
-                    fontSize: 15,
-                  ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Acepto compartir mis datos con Grupo GPA y recibir '
+                        'información relacionada con los temas que seleccione.',
+                        style: AppTypography.label.copyWith(
+                          color: AppColors.carbon,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.gpaCrimson.withValues(alpha: 0.09),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        'Requerido',
+                        style: AppTypography.auxiliary.copyWith(
+                          color: AppColors.gpaCrimson,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/kiosk_shell.dart';
-import '../../../core/session/registration_session_controller.dart';
-import '../../../data/models/registration_session.dart';
-import '../../../data/repositories/interest_submission_repository.dart';
 import '../../../shared/feedback/gpa_progress_indicator.dart';
 import '../../../shared/mascot/gp_mascot.dart';
 import '../domain/interest_navigator.dart';
@@ -13,18 +10,14 @@ import 'widgets/interest_node_visuals.dart';
 
 class InterestsScreen extends StatefulWidget {
   const InterestsScreen({
-    required this.sessionController,
-    required this.repository,
     required this.onBack,
-    required this.onCompleted,
+    required this.onContinue,
     required this.onSessionExpired,
     super.key,
   });
 
-  final RegistrationSessionController sessionController;
-  final InterestSubmissionRepository repository;
   final VoidCallback onBack;
-  final Future<void> Function(RegistrationSession session) onCompleted;
+  final ValueChanged<List<List<String>>> onContinue;
   final VoidCallback onSessionExpired;
 
   @override
@@ -67,8 +60,8 @@ class _InterestsScreenState extends State<InterestsScreen> {
             navigator: _navigator,
             onBackToRegistration: widget.onBack,
             onMascotStateChanged: _setMascotState,
-            onSave: (selections) async {
-              final session = widget.sessionController.completeAll(
+            onContinue: (selections) {
+              widget.onContinue(
                 selections
                     .map(
                       (selection) => selection.path
@@ -77,10 +70,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                     )
                     .toList(growable: false),
               );
-              await widget.repository.save(session);
-              return session;
             },
-            onCompleted: widget.onCompleted,
           ),
         );
       },

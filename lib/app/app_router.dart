@@ -9,6 +9,7 @@ import '../data/models/visitor_registration.dart';
 import '../data/repositories/interest_submission_repository.dart';
 import '../features/admin/presentation/admin_pin_dialog.dart';
 import '../features/admin/presentation/admin_screen.dart';
+import '../features/additional_message/presentation/additional_message_screen.dart';
 import '../features/attract/presentation/attract_page.dart';
 import '../features/interests/presentation/interests_screen.dart';
 import '../features/registration/presentation/registration_page.dart';
@@ -20,6 +21,7 @@ abstract final class AppRouter {
   static const attract = '/';
   static const registration = '/registro';
   static const interests = '/intereses';
+  static const additionalMessage = '/mensaje';
   static const success = '/gracias';
   static const admin = '/administracion';
 
@@ -32,6 +34,7 @@ abstract final class AppRouter {
     return switch (settings.name) {
       registration => _registrationRoute(settings),
       interests => _interestsRoute(settings, repository),
+      additionalMessage => _additionalMessageRoute(settings, repository),
       success => _successRoute(settings, repository),
       admin => _adminRoute(settings, repository),
       _ => _attractRoute(settings, repository),
@@ -115,6 +118,49 @@ abstract final class AppRouter {
       reverseTransitionDuration: AppMotion.screen,
       pageBuilder: (context, animation, secondaryAnimation) {
         return InterestsScreen(
+          onBack: () => Navigator.of(context).pop(),
+          onSessionExpired: () => _resetSession(context),
+          onContinue: (paths) {
+            Navigator.of(
+              context,
+            ).pushNamed(additionalMessage, arguments: paths);
+          },
+        );
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final progress = CurvedAnimation(
+          parent: animation,
+          curve: AppMotion.standardCurve,
+        );
+        return FadeTransition(
+          opacity: progress,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 14 / 768),
+              end: Offset.zero,
+            ).animate(progress),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+
+  static Route<void> _additionalMessageRoute(
+    RouteSettings settings,
+    InterestSubmissionRepository repository,
+  ) {
+    final paths = settings.arguments;
+    if (paths is! List<List<String>> || paths.isEmpty) {
+      return _attractRoute(const RouteSettings(name: attract), repository);
+    }
+    return PageRouteBuilder<void>(
+      settings: settings,
+      transitionDuration: AppMotion.screen,
+      reverseTransitionDuration: AppMotion.screen,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return AdditionalMessageScreen(
+          interestPaths: paths,
           sessionController: RegistrationSessionScope.of(context),
           repository: repository,
           onBack: () => Navigator.of(context).pop(),
@@ -135,7 +181,7 @@ abstract final class AppRouter {
           opacity: progress,
           child: SlideTransition(
             position: Tween<Offset>(
-              begin: const Offset(0, 14 / 768),
+              begin: const Offset(0.015, 0),
               end: Offset.zero,
             ).animate(progress),
             child: child,

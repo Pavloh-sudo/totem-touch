@@ -96,13 +96,14 @@ class _KeyboardSurface extends StatefulWidget {
 }
 
 class _KeyboardSurfaceState extends State<_KeyboardSurface> {
-  bool _showEmailNumbers = false;
+  _EmailKeyboardPage _emailPage = _EmailKeyboardPage.letters;
 
   @override
   void didUpdateWidget(covariant _KeyboardSurface oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.layout != widget.layout && _showEmailNumbers) {
-      _showEmailNumbers = false;
+    if (oldWidget.layout != widget.layout &&
+        _emailPage != _EmailKeyboardPage.letters) {
+      _emailPage = _EmailKeyboardPage.letters;
     }
   }
 
@@ -178,12 +179,18 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
       _KeyboardAction.numbers => _KeyboardKey(
         label: '123',
         semanticLabel: 'Mostrar números',
-        onTap: () => setState(() => _showEmailNumbers = true),
+        onTap: () => setState(() => _emailPage = _EmailKeyboardPage.numbers),
       ),
       _KeyboardAction.letters => _KeyboardKey(
         label: 'ABC',
         semanticLabel: 'Mostrar letras',
-        onTap: () => setState(() => _showEmailNumbers = false),
+        onTap: () => setState(() => _emailPage = _EmailKeyboardPage.letters),
+      ),
+      _KeyboardAction.domains => _KeyboardKey(
+        label: 'Correos',
+        semanticLabel: 'Mostrar opciones de correo',
+        compact: true,
+        onTap: () => setState(() => _emailPage = _EmailKeyboardPage.domains),
       ),
     };
   }
@@ -195,11 +202,13 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
         _letters('asdfghjklñ'),
         [..._letters('zxcvbnm'), const _KeyboardKeySpec.backspace(flex: 2)],
         const [
-          _KeyboardKeySpec.text('Espacio', ' ', flex: 7),
+          _KeyboardKeySpec.text('Espacio', ' ', flex: 6),
+          _KeyboardKeySpec.text(',', ','),
+          _KeyboardKeySpec.text('.', '.'),
           _KeyboardKeySpec.done(flex: 2),
         ],
       ],
-      GpaKeyboardLayout.email when !_showEmailNumbers => [
+      GpaKeyboardLayout.email when _emailPage == _EmailKeyboardPage.letters => [
         _letters('qwertyuiop'),
         _letters('asdfghjkl'),
         [..._letters('zxcvbnm'), const _KeyboardKeySpec.backspace(flex: 2)],
@@ -209,63 +218,57 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
           _KeyboardKeySpec.text('.', '.'),
           _KeyboardKeySpec.text('_', '_'),
           _KeyboardKeySpec.text('-', '-'),
-          _KeyboardKeySpec.text(
-            '@gmail.com',
-            '@gmail.com',
-            flex: 2,
-            compact: true,
-          ),
-          _KeyboardKeySpec.text(
-            '@outlook.com',
-            '@outlook.com',
-            flex: 2,
-            compact: true,
-          ),
+          _KeyboardKeySpec.domains(flex: 2),
           _KeyboardKeySpec.done(),
         ],
       ],
+      GpaKeyboardLayout.email when _emailPage == _EmailKeyboardPage.numbers =>
+        const [
+          [
+            _KeyboardKeySpec.text('1', '1'),
+            _KeyboardKeySpec.text('2', '2'),
+            _KeyboardKeySpec.text('3', '3'),
+            _KeyboardKeySpec.text('4', '4'),
+            _KeyboardKeySpec.text('5', '5'),
+          ],
+          [
+            _KeyboardKeySpec.text('6', '6'),
+            _KeyboardKeySpec.text('7', '7'),
+            _KeyboardKeySpec.text('8', '8'),
+            _KeyboardKeySpec.text('9', '9'),
+            _KeyboardKeySpec.text('0', '0'),
+          ],
+          [
+            _KeyboardKeySpec.text('@', '@'),
+            _KeyboardKeySpec.text('.', '.'),
+            _KeyboardKeySpec.text('_', '_'),
+            _KeyboardKeySpec.text('-', '-'),
+            _KeyboardKeySpec.backspace(),
+          ],
+          [
+            _KeyboardKeySpec.letters(),
+            _KeyboardKeySpec.domains(flex: 2),
+            _KeyboardKeySpec.backspace(),
+            _KeyboardKeySpec.done(),
+          ],
+        ],
       GpaKeyboardLayout.email => const [
         [
-          _KeyboardKeySpec.text('1', '1'),
-          _KeyboardKeySpec.text('2', '2'),
-          _KeyboardKeySpec.text('3', '3'),
-          _KeyboardKeySpec.text('4', '4'),
-          _KeyboardKeySpec.text('5', '5'),
+          _KeyboardKeySpec.text('@gmail.com', '@gmail.com', compact: true),
+          _KeyboardKeySpec.text('@hotmail.com', '@hotmail.com', compact: true),
         ],
         [
-          _KeyboardKeySpec.text('6', '6'),
-          _KeyboardKeySpec.text('7', '7'),
-          _KeyboardKeySpec.text('8', '8'),
-          _KeyboardKeySpec.text('9', '9'),
-          _KeyboardKeySpec.text('0', '0'),
+          _KeyboardKeySpec.text('@outlook.com', '@outlook.com', compact: true),
+          _KeyboardKeySpec.text('@live.com', '@live.com', compact: true),
         ],
         [
-          _KeyboardKeySpec.text('@', '@'),
-          _KeyboardKeySpec.text('.', '.'),
-          _KeyboardKeySpec.text('_', '_'),
-          _KeyboardKeySpec.text('-', '-'),
-          _KeyboardKeySpec.backspace(),
+          _KeyboardKeySpec.text('@yahoo.com', '@yahoo.com', compact: true),
+          _KeyboardKeySpec.text('@icloud.com', '@icloud.com', compact: true),
         ],
         [
           _KeyboardKeySpec.letters(),
-          _KeyboardKeySpec.text(
-            '@gmail.com',
-            '@gmail.com',
-            flex: 2,
-            compact: true,
-          ),
-          _KeyboardKeySpec.text(
-            '@outlook.com',
-            '@outlook.com',
-            flex: 2,
-            compact: true,
-          ),
-          _KeyboardKeySpec.text(
-            '@hotmail.com',
-            '@hotmail.com',
-            flex: 2,
-            compact: true,
-          ),
+          _KeyboardKeySpec.numbers(),
+          _KeyboardKeySpec.backspace(),
           _KeyboardKeySpec.done(),
         ],
       ],
@@ -302,7 +305,9 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
   }
 }
 
-enum _KeyboardAction { text, backspace, done, numbers, letters }
+enum _EmailKeyboardPage { letters, numbers, domains }
+
+enum _KeyboardAction { text, backspace, done, numbers, letters, domains }
 
 class _KeyboardKeySpec {
   const _KeyboardKeySpec.text(
@@ -337,6 +342,12 @@ class _KeyboardKeySpec {
       flex = 1,
       compact = false,
       action = _KeyboardAction.letters;
+
+  const _KeyboardKeySpec.domains({this.flex = 1})
+    : label = 'Correos',
+      value = null,
+      compact = true,
+      action = _KeyboardAction.domains;
 
   final String label;
   final String? value;

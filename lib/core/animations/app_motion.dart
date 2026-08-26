@@ -35,8 +35,8 @@ abstract final class AppMotion {
   static const successCheck = Duration(milliseconds: 300);
   static const successConfetti = Duration(milliseconds: 900);
   static const successSoundDelay = Duration(milliseconds: 120);
-  static const successVisible = Duration(seconds: 8);
-  static const successCountdownDelay = Duration(seconds: 3);
+  static const successVisible = Duration(seconds: 13);
+  static const successCountdownDelay = Duration(seconds: 8);
 
   static const touchDown = instant;
   static const touchUp = fast;

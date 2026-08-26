@@ -23,6 +23,7 @@ void main() {
         additionalPaths: const [
           ['Robótica & Automatización', 'Automatización con Cobots'],
         ],
+        additionalMessage: 'Necesito una demostración en planta.',
       ),
       _record(
         index: 2,
@@ -67,6 +68,14 @@ void main() {
       TextCellValue('Intereses seleccionados'),
     );
     expect(
+      workbook['Registros'].cell(CellIndex.indexByString('M5')).value,
+      TextCellValue('Comentario adicional'),
+    );
+    expect(
+      workbook['Registros'].cell(CellIndex.indexByString('M6')).value,
+      TextCellValue('Necesito una demostración en planta.'),
+    );
+    expect(
       workbook['Intereses'].cell(CellIndex.indexByString('D8')).value,
       TextCellValue('Sistemas de Corte'),
     );
@@ -90,7 +99,7 @@ void main() {
       archive.find('xl/sharedStrings.xml')!.content,
     );
 
-    expect(registrationsXml, contains('<autoFilter ref="A5:Q7"/>'));
+    expect(registrationsXml, contains('<autoFilter ref="A5:R7"/>'));
     expect(interestsXml, contains('<autoFilter ref="A5:H8"/>'));
     expect(summaryXml, contains('<f>COUNTA('));
     expect(summaryXml, contains('<v>3</v>'));
@@ -142,6 +151,7 @@ StoredRegistration _record({
   required String id,
   required List<String> path,
   List<List<String>> additionalPaths = const [],
+  String additionalMessage = '',
 }) {
   final completedAt = DateTime(2026, 8, 26, 14, 32, index);
   return StoredRegistration(
@@ -159,6 +169,7 @@ StoredRegistration _record({
       wantsInformation: index.isEven,
       interestPath: path,
       additionalInterestPaths: additionalPaths,
+      additionalMessage: additionalMessage,
       completedAt: completedAt,
       duration: const Duration(minutes: 2),
       kioskId: 'totem-prueba',

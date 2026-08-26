@@ -109,10 +109,7 @@ class InterestOptionsGrid extends StatelessWidget {
                     dimmed: activeNode != null && activeNode != nodes[index],
                     compact: metrics.compact,
                     showSuccess: showSuccess && activeNode == nodes[index],
-                    onPressed:
-                        enabled &&
-                            activeNode == null &&
-                            !selectedNodeIds.contains(nodes[index].id)
+                    onPressed: enabled && activeNode == null
                         ? () => onSelected(nodes[index])
                         : null,
                   ),

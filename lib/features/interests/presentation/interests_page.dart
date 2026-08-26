@@ -8,7 +8,6 @@ import '../../../core/audio/sound_effect.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_surfaces.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../data/models/registration_session.dart';
 import '../../../shared/buttons/gpa_buttons.dart';
 import '../../../shared/mascot/gp_mascot.dart';
 import '../domain/interest_navigator.dart';
@@ -20,19 +19,14 @@ class InterestsPage extends StatefulWidget {
     required this.navigator,
     required this.onBackToRegistration,
     required this.onMascotStateChanged,
-    required this.onSave,
-    required this.onCompleted,
+    required this.onContinue,
     super.key,
   });
 
   final InterestNavigator navigator;
   final VoidCallback onBackToRegistration;
   final ValueChanged<GpMascotState> onMascotStateChanged;
-  final Future<RegistrationSession> Function(
-    List<FinalInterestSelection> selections,
-  )
-  onSave;
-  final Future<void> Function(RegistrationSession session) onCompleted;
+  final ValueChanged<List<FinalInterestSelection>> onContinue;
 
   @override
   State<InterestsPage> createState() => _InterestsPageState();
@@ -40,10 +34,9 @@ class InterestsPage extends StatefulWidget {
 
 class _InterestsPageState extends State<InterestsPage> {
   InterestNode? _selectedNode;
-  FinalInterestSelection? _recentSelection;
   bool _busy = false;
   bool _showSuccess = false;
-  bool _saving = false;
+  bool _showExploreMoreQuestion = false;
 
   void _play(SoundEffect effect) {
     final controller = SoundControllerScope.maybeOf(context);
@@ -58,7 +51,8 @@ class _InterestsPageState extends State<InterestsPage> {
 
   void _selectNode(InterestNode node) {
     if (_busy) return;
-    _play(SoundEffect.selection);
+    final selecting = !node.isLeaf || !widget.navigator.isSelected(node);
+    _play(selecting ? SoundEffect.selection : SoundEffect.back);
     setState(() {
       _busy = true;
       _selectedNode = node;
@@ -72,8 +66,8 @@ class _InterestsPageState extends State<InterestsPage> {
     await Future<void>.delayed(AppMotion.interestUnselected);
     if (!mounted) return;
 
-    final finalSelection = widget.navigator.select(node);
-    if (finalSelection == null) {
+    if (!node.isLeaf) {
+      widget.navigator.select(node);
       setState(() {
         _busy = false;
         _selectedNode = null;
@@ -82,58 +76,38 @@ class _InterestsPageState extends State<InterestsPage> {
       return;
     }
 
-    setState(() => _showSuccess = true);
-    widget.onMascotStateChanged(GpMascotState.celebrate);
-    await Future<void>.delayed(AppMotion.standard);
-    if (!mounted) return;
+    final selected = widget.navigator.toggleLeaf(node);
+    if (selected) {
+      setState(() {
+        _showSuccess = true;
+      });
+      widget.onMascotStateChanged(GpMascotState.celebrate);
+      await Future<void>.delayed(AppMotion.standard);
+      if (!mounted) return;
+    }
     setState(() {
-      _showSuccess = false;
-      _recentSelection = finalSelection;
-    });
-  }
-
-  void _continueSelecting() {
-    if (_saving) return;
-    setState(() {
-      _recentSelection = null;
-      _selectedNode = null;
       _busy = false;
+      _selectedNode = null;
       _showSuccess = false;
     });
     widget.onMascotStateChanged(GpMascotState.guide);
   }
 
-  void _finishRegistration() {
-    if (_saving || widget.navigator.selections.isEmpty) return;
-    setState(() {
-      _saving = true;
-      _busy = true;
-    });
-    unawaited(_saveSelections());
+  void _returnToAreas() {
+    if (_busy || widget.navigator.selections.isEmpty) return;
+    widget.navigator.back();
+    setState(() => _showExploreMoreQuestion = widget.navigator.isAtRoot);
+    widget.onMascotStateChanged(GpMascotState.thinking);
   }
 
-  Future<void> _saveSelections() async {
-    try {
-      late RegistrationSession completedSession;
-      await Future.wait([
-        widget.onSave(widget.navigator.selections).then((session) {
-          completedSession = session;
-        }),
-        Future<void>.delayed(AppMotion.interestSaving),
-      ]);
-      if (!mounted) return;
-      await widget.onCompleted(completedSession);
-    } catch (_) {
-      if (!mounted) return;
-      _play(SoundEffect.error);
-      widget.onMascotStateChanged(GpMascotState.error);
-      setState(() {
-        _busy = _recentSelection != null;
-        _saving = false;
-        _selectedNode = null;
-        _showSuccess = false;
-      });
-    }
+  void _chooseAnotherArea() {
+    setState(() => _showExploreMoreQuestion = false);
+    widget.onMascotStateChanged(GpMascotState.guide);
+  }
+
+  void _continueFlow() {
+    if (_busy || widget.navigator.selections.isEmpty) return;
+    widget.onContinue(widget.navigator.selections);
   }
 
   String _breadcrumbText(List<InterestNode> breadcrumb) {
@@ -152,6 +126,7 @@ class _InterestsPageState extends State<InterestsPage> {
       builder: (context, child) {
         final navigator = widget.navigator;
         final isRoot = navigator.isAtRoot;
+        final hasSelections = navigator.selectionCount > 0;
         final levelKey = navigator.currentNode?.id ?? 'root';
         final selectedNodeIds = {
           ...navigator.selections.map((selection) => selection.leaf.id),
@@ -194,7 +169,9 @@ class _InterestsPageState extends State<InterestsPage> {
                           const SizedBox(height: 2),
                           Text(
                             isRoot
-                                ? '¿Qué te gustaría explorar?'
+                                ? hasSelections
+                                      ? '¿Te gustaría explorar algo más?'
+                                      : '¿Qué te gustaría explorar?'
                                 : '¿Qué opciones te interesan?',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -205,7 +182,9 @@ class _InterestsPageState extends State<InterestsPage> {
                           const SizedBox(height: 2),
                           Text(
                             isRoot
-                                ? 'Elige un área para ver sus opciones.'
+                                ? hasSelections
+                                      ? 'Puedes elegir otra área o continuar con tus selecciones.'
+                                      : 'Elige un área para ver sus opciones.'
                                 : 'Puedes elegir más de una opción.',
                             style: AppTypography.body.copyWith(fontSize: 16),
                           ),
@@ -246,24 +225,26 @@ class _InterestsPageState extends State<InterestsPage> {
                     ),
                   ),
                 ),
-                if (navigator.selectionCount > 0 && _recentSelection == null)
+                if (navigator.selectionCount > 0)
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: _SelectedInterestsBar(
                       count: navigator.selectionCount,
-                      onFinish: _saving ? null : _finishRegistration,
+                      onContinue: _busy
+                          ? null
+                          : isRoot
+                          ? _continueFlow
+                          : _returnToAreas,
                     ),
                   ),
               ],
             ),
-            if (_recentSelection case final selection?)
+            if (_showExploreMoreQuestion)
               Positioned.fill(
-                child: _ContinueOrFinishOverlay(
-                  selection: selection,
+                child: _ExploreMoreOverlay(
                   total: navigator.selectionCount,
-                  saving: _saving,
-                  onContinue: _continueSelecting,
-                  onFinish: _finishRegistration,
+                  onChooseMore: _chooseAnotherArea,
+                  onContinue: _continueFlow,
                 ),
               ),
           ],
@@ -299,10 +280,10 @@ class _SelectionCountBadge extends StatelessWidget {
 }
 
 class _SelectedInterestsBar extends StatelessWidget {
-  const _SelectedInterestsBar({required this.count, required this.onFinish});
+  const _SelectedInterestsBar({required this.count, required this.onContinue});
 
   final int count;
-  final VoidCallback? onFinish;
+  final VoidCallback? onContinue;
 
   @override
   Widget build(BuildContext context) {
@@ -317,19 +298,19 @@ class _SelectedInterestsBar extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              '$count ${count == 1 ? 'interés guardado' : 'intereses guardados'}',
+              '$count ${count == 1 ? 'opción seleccionada' : 'opciones seleccionadas'}',
               style: AppTypography.label,
             ),
           ),
           SizedBox(
-            width: 180,
+            width: 210,
             child: GpaPrimaryButton(
-              label: 'Terminar',
+              label: 'Continuar',
               icon: Icons.arrow_forward_rounded,
               trailingIcon: true,
               height: 50,
               sound: SoundEffect.selection,
-              onPressed: onFinish,
+              onPressed: onContinue,
             ),
           ),
         ],
@@ -338,20 +319,16 @@ class _SelectedInterestsBar extends StatelessWidget {
   }
 }
 
-class _ContinueOrFinishOverlay extends StatelessWidget {
-  const _ContinueOrFinishOverlay({
-    required this.selection,
+class _ExploreMoreOverlay extends StatelessWidget {
+  const _ExploreMoreOverlay({
     required this.total,
-    required this.saving,
+    required this.onChooseMore,
     required this.onContinue,
-    required this.onFinish,
   });
 
-  final FinalInterestSelection selection;
   final int total;
-  final bool saving;
+  final VoidCallback onChooseMore;
   final VoidCallback onContinue;
-  final VoidCallback onFinish;
 
   @override
   Widget build(BuildContext context) {
@@ -374,7 +351,7 @@ class _ContinueOrFinishOverlay extends StatelessWidget {
         );
       },
       child: Container(
-        key: const ValueKey('interest-continue-or-finish'),
+        key: const ValueKey('interest-explore-more'),
         width: 570,
         padding: const EdgeInsets.all(28),
         decoration: AppSurfaces.card(selected: true),
@@ -385,33 +362,24 @@ class _ContinueOrFinishOverlay extends StatelessWidget {
               width: 68,
               height: 68,
               decoration: BoxDecoration(
-                color: AppColors.successGreen.withValues(alpha: 0.12),
+                color: AppColors.techCyan.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.check_rounded,
-                color: AppColors.successGreen,
-                size: 40,
+                Icons.travel_explore_rounded,
+                color: AppColors.techCyan,
+                size: 38,
               ),
             ),
             const SizedBox(height: 16),
-            Text('Interés agregado', style: AppTypography.screenTitle),
-            const SizedBox(height: 8),
             Text(
-              selection.leaf.title,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.subtitle.copyWith(
-                color: AppColors.gpaCrimson,
-                fontWeight: FontWeight.w700,
-              ),
+              'Tus intereses van tomando forma',
+              style: AppTypography.screenTitle,
             ),
             const SizedBox(height: 8),
             Text(
-              total == 1
-                  ? '¿Quieres seleccionar algo más o terminamos?'
-                  : 'Ya llevas $total selecciones. ¿Agregamos otra?',
+              'Llevas $total ${total == 1 ? 'opción seleccionada' : 'opciones seleccionadas'}. '
+              '¿Te gustaría explorar otra área?',
               textAlign: TextAlign.center,
               style: AppTypography.body,
             ),
@@ -420,24 +388,21 @@ class _ContinueOrFinishOverlay extends StatelessWidget {
               children: [
                 Expanded(
                   child: GpaSecondaryButton(
-                    label: 'Elegir otra',
+                    label: 'Elegir otra área',
                     icon: Icons.add_rounded,
                     height: 62,
-                    onPressed: saving ? null : onContinue,
+                    onPressed: onChooseMore,
                   ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: GpaPrimaryButton(
-                    label: saving ? 'Guardando' : 'Terminar',
+                    label: 'Continuar',
                     icon: Icons.arrow_forward_rounded,
                     trailingIcon: true,
                     height: 62,
-                    state: saving
-                        ? GpaButtonState.loading
-                        : GpaButtonState.normal,
                     sound: SoundEffect.selection,
-                    onPressed: saving ? null : onFinish,
+                    onPressed: onContinue,
                   ),
                 ),
               ],

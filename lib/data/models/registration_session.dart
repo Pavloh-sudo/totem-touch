@@ -12,6 +12,7 @@ class RegistrationSession {
     required this.wantsInformation,
     required this.interestPath,
     this.additionalInterestPaths = const [],
+    this.additionalMessage = '',
     required this.completedAt,
     required this.duration,
     required this.kioskId,
@@ -28,6 +29,7 @@ class RegistrationSession {
   final bool wantsInformation;
   final List<String> interestPath;
   final List<List<String>> additionalInterestPaths;
+  final String additionalMessage;
   final DateTime? completedAt;
   final Duration? duration;
   final String kioskId;
@@ -52,6 +54,7 @@ class RegistrationSession {
       'wantsInformation': wantsInformation,
       'interestPath': interestPath,
       'interestPaths': interestPaths,
+      'additionalMessage': additionalMessage,
       'completedAt': completedAt?.toIso8601String(),
       'durationMilliseconds': duration?.inMilliseconds,
       'kioskId': kioskId,
@@ -90,6 +93,7 @@ class RegistrationSession {
       additionalInterestPaths: storedPaths.length <= 1
           ? const []
           : List.unmodifiable(storedPaths.skip(1)),
+      additionalMessage: json['additionalMessage'] as String? ?? '',
       completedAt: switch (json['completedAt']) {
         final String value => DateTime.parse(value),
         _ => null,
@@ -115,6 +119,7 @@ class RegistrationSession {
       wantsInformation: registration.acceptsInformation,
       interestPath: interestPath,
       additionalInterestPaths: additionalInterestPaths,
+      additionalMessage: additionalMessage,
       completedAt: completedAt,
       duration: duration,
       kioskId: kioskId,
@@ -132,6 +137,7 @@ class RegistrationSession {
   RegistrationSession completeAll({
     required List<List<String>> paths,
     required DateTime at,
+    String additionalMessage = '',
   }) {
     final immutablePaths = paths
         .map((path) => List<String>.unmodifiable(path))
@@ -147,6 +153,7 @@ class RegistrationSession {
       wantsInformation: wantsInformation,
       interestPath: immutablePaths.first,
       additionalInterestPaths: List.unmodifiable(immutablePaths.skip(1)),
+      additionalMessage: additionalMessage.trim(),
       completedAt: at,
       duration: at.difference(startedAt),
       kioskId: kioskId,

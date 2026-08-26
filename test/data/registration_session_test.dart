@@ -22,6 +22,7 @@ void main() {
     expect(session.interestPaths, [
       ['Software Industrial', 'Sistemas Web'],
     ]);
+    expect(session.additionalMessage, isEmpty);
   });
 
   test('serializa y recupera varias rutas de interés', () {
@@ -39,6 +40,7 @@ void main() {
         ['Sistemas de Corte', 'Sistema de Corte con Plasma'],
         ['Software Industrial', 'Sistemas Web'],
       ],
+      'additionalMessage': 'Me interesa una demostración.',
       'completedAt': '2026-08-26T10:02:00.000',
       'durationMilliseconds': 120000,
       'kioskId': 'totem-prueba',
@@ -48,5 +50,6 @@ void main() {
     final restored = RegistrationSession.fromJson(original.toJson());
     expect(restored.interestPaths, original.interestPaths);
     expect(restored.finalInterest, 'Sistemas Web');
+    expect(restored.additionalMessage, 'Me interesa una demostración.');
   });
 }

@@ -87,7 +87,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return _profile != null && _nameValid && _organizationValid;
   }
 
-  bool get _contactValid => _emailValid && _phoneValid;
+  bool get _contactValid => _emailValid && _phoneValid && _acceptsInformation;
 
   String? get _nameError {
     if (_activeField == _RegistrationField.name ||

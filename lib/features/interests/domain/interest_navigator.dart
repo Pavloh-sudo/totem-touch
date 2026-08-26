@@ -32,6 +32,32 @@ class InterestNavigator extends ChangeNotifier {
     return _selections.any((selection) => selection.leaf.id == node.id);
   }
 
+  bool toggleLeaf(InterestNode node) {
+    if (!options.contains(node) || !node.isLeaf) {
+      throw ArgumentError.value(
+        node.id,
+        'node',
+        'Debe ser una opción final del nivel actual',
+      );
+    }
+    final index = _selections.indexWhere(
+      (selection) => selection.leaf.id == node.id,
+    );
+    if (index >= 0) {
+      _selections.removeAt(index);
+      notifyListeners();
+      return false;
+    }
+    _selections.add(
+      FinalInterestSelection(
+        path: List.unmodifiable([..._history, node]),
+        leaf: node,
+      ),
+    );
+    notifyListeners();
+    return true;
+  }
+
   InterestMascotOutfit? get mascotOutfit {
     for (final node in _history.reversed) {
       if (node.mascotOutfit case final outfit?) return outfit;

@@ -87,20 +87,32 @@ void main() {
     expect(find.text('.'), findsOneWidget);
     expect(find.text('_'), findsOneWidget);
     expect(find.text('-'), findsOneWidget);
-    expect(find.text('@gmail.com'), findsOneWidget);
-    expect(find.text('@outlook.com'), findsOneWidget);
+    expect(find.text('Correos'), findsOneWidget);
 
     await tester.tap(find.text('123'));
     await tester.pump();
     expect(find.text('1'), findsOneWidget);
     expect(find.text('ABC'), findsOneWidget);
-    expect(find.text('@hotmail.com'), findsOneWidget);
+    expect(find.text('Correos'), findsOneWidget);
     await tester.tap(find.text('1'));
     await tester.pump();
     expect(value, '1');
 
     await tester.tap(find.text('ABC'));
     await tester.pump();
+
+    await tester.tap(find.text('Correos'));
+    await tester.pump();
+    for (final domain in [
+      '@gmail.com',
+      '@hotmail.com',
+      '@outlook.com',
+      '@live.com',
+      '@yahoo.com',
+      '@icloud.com',
+    ]) {
+      expect(find.text(domain), findsOneWidget);
+    }
 
     await tester.tap(find.text('@gmail.com'));
     await tester.pump();

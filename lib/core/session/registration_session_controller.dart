@@ -39,6 +39,7 @@ class RegistrationSessionController extends ChangeNotifier {
       phone: '',
       wantsInformation: false,
       interestPath: const [],
+      additionalMessage: '',
       completedAt: null,
       duration: null,
       kioskId: kioskId,
@@ -59,7 +60,10 @@ class RegistrationSessionController extends ChangeNotifier {
     return completeAll([interestPath]);
   }
 
-  RegistrationSession completeAll(List<List<String>> interestPaths) {
+  RegistrationSession completeAll(
+    List<List<String>> interestPaths, {
+    String additionalMessage = '',
+  }) {
     final session = _requireCurrent();
     if (session.personType == null) {
       throw StateError('La sesión todavía no tiene datos de registro.');
@@ -67,7 +71,11 @@ class RegistrationSessionController extends ChangeNotifier {
     if (interestPaths.isEmpty || interestPaths.any((path) => path.isEmpty)) {
       throw ArgumentError.value(interestPaths, 'interestPaths');
     }
-    _current = session.completeAll(paths: interestPaths, at: _clock());
+    _current = session.completeAll(
+      paths: interestPaths,
+      at: _clock(),
+      additionalMessage: additionalMessage,
+    );
     notifyListeners();
     return _current!;
   }

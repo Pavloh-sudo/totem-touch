@@ -78,6 +78,7 @@ class GpaExcelExporter {
       'Recibir información',
       'Cantidad de intereses',
       'Intereses seleccionados',
+      'Comentario adicional',
       'Estado',
       'Timestamp completo',
       'Duración (s)',
@@ -111,6 +112,7 @@ class GpaExcelExporter {
         TextCellValue(session.wantsInformation ? 'Sí' : 'No'),
         IntCellValue(interests.length),
         TextCellValue(interests.map((path) => path.join(' › ')).join(' | ')),
+        _textCell(session.additionalMessage),
         TextCellValue(
           record.syncStatus == RegistrationSyncStatus.synced
               ? 'Sincronizado'
@@ -126,10 +128,10 @@ class GpaExcelExporter {
         values,
         row: index + 5,
         alternate: index.isOdd,
-        centeredColumns: const {1, 9, 10, 12, 14},
+        centeredColumns: const {1, 9, 10, 13, 15},
         dateColumn: 2,
         timeColumn: 3,
-        timestampColumn: 13,
+        timestampColumn: 14,
       );
     }
 
@@ -147,6 +149,7 @@ class GpaExcelExporter {
       20,
       20,
       68,
+      48,
       16,
       25,
       14,
@@ -412,7 +415,7 @@ class GpaExcelExporter {
     _addFilter(
       archive,
       'xl/worksheets/sheet1.xml',
-      'A5:Q${math.max(5, recordCount + 5)}',
+      'A5:R${math.max(5, recordCount + 5)}',
     );
     _addFilter(
       archive,
