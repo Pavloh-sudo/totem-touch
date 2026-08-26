@@ -31,6 +31,13 @@ abstract final class AppMotion {
   static const interestUnselected = Duration(milliseconds: 160);
   static const interestSaving = Duration(milliseconds: 420);
 
+  static const successCircle = Duration(milliseconds: 360);
+  static const successCheck = Duration(milliseconds: 300);
+  static const successConfetti = Duration(milliseconds: 900);
+  static const successSoundDelay = Duration(milliseconds: 120);
+  static const successVisible = Duration(seconds: 8);
+  static const successCountdownDelay = Duration(seconds: 3);
+
   static const touchDown = instant;
   static const touchUp = fast;
   static const ripple = Duration(milliseconds: 320);

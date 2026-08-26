@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:totem_touch/core/animations/app_motion.dart';
 import 'package:totem_touch/core/audio/sound_controller.dart';
+import 'package:totem_touch/core/session/registration_session_controller.dart';
 import 'package:totem_touch/core/theme/app_theme.dart';
 import 'package:totem_touch/data/local/memory_interest_submission_repository.dart';
-import 'package:totem_touch/data/models/interest_submission.dart';
+import 'package:totem_touch/data/models/registration_session.dart';
 import 'package:totem_touch/data/models/visitor_registration.dart';
 import 'package:totem_touch/features/interests/domain/interest_tree.dart';
 import 'package:totem_touch/features/interests/presentation/interests_screen.dart';
@@ -27,21 +28,28 @@ void main() {
   Future<void> pumpScreen(
     WidgetTester tester, {
     required MemoryInterestSubmissionRepository repository,
-    required Future<void> Function(InterestSubmission submission) onCompleted,
+    required Future<void> Function(RegistrationSession session) onCompleted,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(1024, 768);
     final controller = SoundController(engine: FakeSoundPlaybackEngine());
     addTearDown(controller.dispose);
+    final sessionController = RegistrationSessionController(
+      idGenerator: () => 'session-prueba',
+    );
+    addTearDown(sessionController.dispose);
+    sessionController.begin();
+    sessionController.setRegistration(registration);
 
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.kiosk,
         home: InterestsScreen(
-          registration: registration,
+          sessionController: sessionController,
           repository: repository,
           onBack: () {},
           onCompleted: onCompleted,
+          onSessionExpired: () {},
         ),
       ),
     );
@@ -116,7 +124,7 @@ void main() {
     'una hoja se guarda una sola vez y muestra el check antes de éxito',
     (tester) async {
       final repository = MemoryInterestSubmissionRepository();
-      InterestSubmission? completed;
+      RegistrationSession? completed;
       await pumpScreen(
         tester,
         repository: repository,
@@ -152,7 +160,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1));
 
       expect(completed, isNotNull);
-      expect(completed!.pathIds, [cutting.id, leaf.id]);
+      expect(completed!.interestPath, [cutting.title, leaf.title]);
       expect(completed!.finalInterest, leaf.title);
       expect(repository.submissions, hasLength(1));
     },

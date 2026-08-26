@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:totem_touch/app/app.dart';
+import 'package:totem_touch/core/session/registration_session_controller.dart';
 import 'package:totem_touch/shared/buttons/gpa_buttons.dart';
 import 'package:totem_touch/shared/mascot/gp_mascot.dart';
 
@@ -39,6 +40,10 @@ void main() {
 
     await tester.pumpWidget(const TotemTouchApp());
     await tester.pump(const Duration(milliseconds: 1500));
+    final sessionController = tester
+        .widget<RegistrationSessionScope>(find.byType(RegistrationSessionScope))
+        .notifier!;
+    final preparedId = sessionController.nextSessionId;
     await tester.tap(find.text('Quiero conocer más'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 110));
@@ -62,5 +67,11 @@ void main() {
           .opacity,
       1,
     );
+    expect(sessionController.current?.sessionId, preparedId);
+
+    await tester.tap(find.text('Volver'));
+    await tester.pump(const Duration(milliseconds: 330));
+    expect(sessionController.current, isNull);
+    expect(sessionController.nextSessionId, isNot(preparedId));
   });
 }

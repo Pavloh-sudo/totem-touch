@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../core/animations/app_motion.dart';
 import '../core/configuration/kiosk_configuration.dart';
+import '../core/session/registration_session_controller.dart';
 import '../data/local/memory_interest_submission_repository.dart';
-import '../data/models/interest_submission.dart';
+import '../data/models/registration_session.dart';
 import '../data/models/visitor_registration.dart';
 import '../features/attract/presentation/attract_page.dart';
 import '../features/interests/presentation/interests_screen.dart';
@@ -41,6 +42,7 @@ abstract final class AppRouter {
           inactivityTimeout: null,
           child: AttractPage(
             onStart: () async {
+              RegistrationSessionScope.of(context).begin();
               await Navigator.of(context).pushNamed(registration);
             },
           ),
@@ -63,11 +65,17 @@ abstract final class AppRouter {
       pageBuilder: (context, animation, secondaryAnimation) {
         return KioskShell(
           progressStage: KioskProgressStage.data,
+          onInactivityWarning: () => _closeTransientRoute(context),
+          onSessionExpired: () => _resetSession(context),
           child: RegistrationPage(
             onBack: () {
+              RegistrationSessionScope.of(context).resetForNextVisitor();
               Navigator.of(context).pop();
             },
             onContinue: (registrationData) async {
+              RegistrationSessionScope.of(
+                context,
+              ).setRegistration(registrationData);
               await Navigator.of(
                 context,
               ).pushNamed(interests, arguments: registrationData);
@@ -92,9 +100,10 @@ abstract final class AppRouter {
       reverseTransitionDuration: AppMotion.screen,
       pageBuilder: (context, animation, secondaryAnimation) {
         return InterestsScreen(
-          registration: registrationData,
+          sessionController: RegistrationSessionScope.of(context),
           repository: _interestRepository,
           onBack: () => Navigator.of(context).pop(),
+          onSessionExpired: () => _resetSession(context),
           onCompleted: (submission) async {
             await Navigator.of(
               context,
@@ -123,7 +132,7 @@ abstract final class AppRouter {
 
   static Route<void> _successRoute(RouteSettings settings) {
     final submission = settings.arguments;
-    if (submission is! InterestSubmission) return _attractRoute(settings);
+    if (submission is! RegistrationSession) return _attractRoute(settings);
 
     return PageRouteBuilder<void>(
       settings: settings,
@@ -132,10 +141,11 @@ abstract final class AppRouter {
       pageBuilder: (context, animation, secondaryAnimation) {
         return KioskShell(
           progressStage: KioskProgressStage.done,
+          onSessionExpired: () => _resetSession(context),
           child: SuccessPage(
             submission: submission,
             onFinish: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              _resetSession(context);
             },
           ),
         );
@@ -154,6 +164,17 @@ abstract final class AppRouter {
         );
       },
     );
+  }
+
+  static void _resetSession(BuildContext context) {
+    RegistrationSessionScope.of(context).resetForNextVisitor();
+    FocusManager.instance.primaryFocus?.unfocus();
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  static void _closeTransientRoute(BuildContext context) {
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isCurrent) Navigator.of(context).pop();
   }
 }
 

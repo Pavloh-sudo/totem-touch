@@ -54,17 +54,36 @@ void main() {
         home: KioskShell(
           soundController: controller,
           inactivityTimeout: const Duration(milliseconds: 100),
-          warningBeforeTimeout: const Duration(milliseconds: 30),
+          inactivityWarningDuration: const Duration(milliseconds: 30),
           onInactivityWarning: () => warnings++,
           onSessionExpired: () => expirations++,
           child: const SizedBox.expand(),
         ),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 75));
+    await tester.pump(const Duration(milliseconds: 99));
+    expect(warnings, 0);
+    await tester.pump(const Duration(milliseconds: 1));
 
     expect(warnings, 1);
     expect(engine.playCalls.single.$1, 'audio/ui_warning.wav');
+    expect(find.text('¿Sigues ahí?'), findsOneWidget);
+    expect(
+      find.text('Cerraremos esta sesión para proteger tu información.'),
+      findsOneWidget,
+    );
+    expect(find.text('Continuar'), findsOneWidget);
+
+    await tester.tap(find.text('Continuar'));
+    await tester.pump();
+    expect(
+      find.byKey(const ValueKey('inactivity-warning-modal')),
+      findsNothing,
+    );
+    await tester.pump(const Duration(milliseconds: 99));
+    expect(warnings, 1);
+    await tester.pump(const Duration(milliseconds: 1));
+    expect(warnings, 2);
 
     await tester.pump(const Duration(milliseconds: 30));
     expect(expirations, 1);

@@ -7,8 +7,7 @@ import '../../../core/audio/sound_controller.dart';
 import '../../../core/audio/sound_effect.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../data/models/interest_submission.dart';
-import '../../../data/models/visitor_registration.dart';
+import '../../../data/models/registration_session.dart';
 import '../../../shared/buttons/gpa_buttons.dart';
 import '../../../shared/mascot/gp_mascot.dart';
 import '../domain/interest_navigator.dart';
@@ -17,7 +16,6 @@ import 'widgets/interest_options_grid.dart';
 
 class InterestsPage extends StatefulWidget {
   const InterestsPage({
-    required this.registration,
     required this.navigator,
     required this.onBackToRegistration,
     required this.onMascotStateChanged,
@@ -26,12 +24,12 @@ class InterestsPage extends StatefulWidget {
     super.key,
   });
 
-  final VisitorRegistration registration;
   final InterestNavigator navigator;
   final VoidCallback onBackToRegistration;
   final ValueChanged<GpMascotState> onMascotStateChanged;
-  final Future<void> Function(InterestSubmission submission) onSave;
-  final Future<void> Function(InterestSubmission submission) onCompleted;
+  final Future<RegistrationSession> Function(FinalInterestSelection selection)
+  onSave;
+  final Future<void> Function(RegistrationSession session) onCompleted;
 
   @override
   State<InterestsPage> createState() => _InterestsPageState();
@@ -81,16 +79,16 @@ class _InterestsPageState extends State<InterestsPage> {
 
     setState(() => _showSuccess = true);
     widget.onMascotStateChanged(GpMascotState.celebrate);
-    final submission = _submissionFor(finalSelection);
-
     try {
+      late RegistrationSession completedSession;
       await Future.wait([
-        widget.onSave(submission),
+        widget.onSave(finalSelection).then((session) {
+          completedSession = session;
+        }),
         Future<void>.delayed(AppMotion.interestSaving),
       ]);
       if (!mounted) return;
-      _play(SoundEffect.success);
-      await widget.onCompleted(submission);
+      await widget.onCompleted(completedSession);
     } catch (_) {
       if (!mounted) return;
       _play(SoundEffect.error);
@@ -101,17 +99,6 @@ class _InterestsPageState extends State<InterestsPage> {
         _showSuccess = false;
       });
     }
-  }
-
-  InterestSubmission _submissionFor(FinalInterestSelection selection) {
-    final now = DateTime.now();
-    return InterestSubmission(
-      id: '${now.microsecondsSinceEpoch}-${selection.leaf.id}',
-      registration: widget.registration,
-      pathIds: List.unmodifiable(selection.path.map((node) => node.id)),
-      pathTitles: List.unmodifiable(selection.path.map((node) => node.title)),
-      createdAt: now,
-    );
   }
 
   String _breadcrumbText(List<InterestNode> breadcrumb) {

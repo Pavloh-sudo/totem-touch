@@ -1,5 +1,5 @@
-import '../models/interest_submission.dart';
+import '../models/registration_session.dart';
 
 abstract interface class InterestSubmissionRepository {
-  Future<void> save(InterestSubmission submission);
+  Future<void> save(RegistrationSession session);
 }

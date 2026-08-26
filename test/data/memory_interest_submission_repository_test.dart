@@ -1,24 +1,25 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:totem_touch/data/local/memory_interest_submission_repository.dart';
-import 'package:totem_touch/data/models/interest_submission.dart';
+import 'package:totem_touch/data/models/registration_session.dart';
 import 'package:totem_touch/data/models/visitor_registration.dart';
 
 void main() {
   test('el mismo registro no se guarda dos veces', () async {
     final repository = MemoryInterestSubmissionRepository();
-    final submission = InterestSubmission(
-      id: 'registro-1',
-      registration: const VisitorRegistration(
-        profile: VisitorProfile.other,
-        name: 'Prueba',
-        organization: '',
-        email: 'prueba1@correo.com',
-        phone: '1111111111',
-        acceptsInformation: false,
-      ),
-      pathIds: const ['area', 'opcion'],
-      pathTitles: const ['Área', 'Opción'],
-      createdAt: DateTime(2026, 8, 25),
+    final submission = RegistrationSession(
+      sessionId: 'registro-1',
+      startedAt: DateTime(2026, 8, 25, 10),
+      personType: VisitorProfile.other,
+      name: 'Prueba',
+      company: '',
+      email: 'prueba1@correo.com',
+      phone: '1111111111',
+      wantsInformation: false,
+      interestPath: const ['Área', 'Opción'],
+      completedAt: DateTime(2026, 8, 25, 10, 2),
+      duration: const Duration(minutes: 2),
+      kioskId: 'kiosk-1',
+      eventId: 'evento-1',
     );
 
     await repository.save(submission);
