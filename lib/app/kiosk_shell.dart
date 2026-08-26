@@ -27,6 +27,7 @@ class KioskShell extends StatefulWidget {
     this.headerHeight = KioskConfiguration.headerHeight,
     this.logoSize = 50,
     this.headerCompanion,
+    this.onLogoHeld,
     super.key,
   });
 
@@ -40,6 +41,7 @@ class KioskShell extends StatefulWidget {
   final double headerHeight;
   final double logoSize;
   final Widget? headerCompanion;
+  final VoidCallback? onLogoHeld;
 
   @override
   State<KioskShell> createState() => _KioskShellState();
@@ -175,6 +177,7 @@ class _KioskShellState extends State<KioskShell> {
                                   height: widget.headerHeight,
                                   logoSize: widget.logoSize,
                                   companion: widget.headerCompanion,
+                                  onLogoHeld: widget.onLogoHeld,
                                 ),
                                 Expanded(
                                   child: Padding(

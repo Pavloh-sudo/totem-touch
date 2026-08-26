@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../data/models/registration_session.dart';
 import '../../data/models/visitor_registration.dart';
@@ -97,11 +98,14 @@ class RegistrationSessionScope
 }
 
 class _SessionIdGenerator {
-  int _sequence = 0;
+  final Uuid _uuid = const Uuid();
 
   String next() {
-    final time = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
-    final sequence = (_sequence++).toRadixString(36).padLeft(2, '0');
-    return 'gpa-$time-$sequence';
+    final now = DateTime.now();
+    final date =
+        '${now.year.toString().padLeft(4, '0')}'
+        '${now.month.toString().padLeft(2, '0')}'
+        '${now.day.toString().padLeft(2, '0')}';
+    return 'GPA-$date-${_uuid.v4().toUpperCase()}';
   }
 }

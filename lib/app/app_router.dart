@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import '../core/animations/app_motion.dart';
 import '../core/configuration/kiosk_configuration.dart';
 import '../core/session/registration_session_controller.dart';
-import '../data/local/memory_interest_submission_repository.dart';
+import '../data/export/gpa_excel_exporter.dart';
 import '../data/models/registration_session.dart';
 import '../data/models/visitor_registration.dart';
+import '../data/repositories/interest_submission_repository.dart';
+import '../features/admin/presentation/admin_pin_dialog.dart';
+import '../features/admin/presentation/admin_screen.dart';
 import '../features/attract/presentation/attract_page.dart';
 import '../features/interests/presentation/interests_screen.dart';
 import '../features/registration/presentation/registration_page.dart';
@@ -18,19 +21,27 @@ abstract final class AppRouter {
   static const registration = '/registro';
   static const interests = '/intereses';
   static const success = '/gracias';
+  static const admin = '/administracion';
 
-  static final _interestRepository = MemoryInterestSubmissionRepository();
+  static final Object _adminAccess = Object();
 
-  static Route<void> onGenerateRoute(RouteSettings settings) {
+  static Route<void> onGenerateRoute(
+    RouteSettings settings, {
+    required InterestSubmissionRepository repository,
+  }) {
     return switch (settings.name) {
       registration => _registrationRoute(settings),
-      interests => _interestsRoute(settings),
-      success => _successRoute(settings),
-      _ => _attractRoute(settings),
+      interests => _interestsRoute(settings, repository),
+      success => _successRoute(settings, repository),
+      admin => _adminRoute(settings, repository),
+      _ => _attractRoute(settings, repository),
     };
   }
 
-  static Route<void> _attractRoute(RouteSettings settings) {
+  static Route<void> _attractRoute(
+    RouteSettings settings,
+    InterestSubmissionRepository repository,
+  ) {
     return PageRouteBuilder<void>(
       settings: settings,
       transitionDuration: Duration.zero,
@@ -40,6 +51,7 @@ abstract final class AppRouter {
           headerHeight: KioskConfiguration.attractHeaderHeight,
           logoSize: KioskConfiguration.attractLogoSize,
           inactivityTimeout: null,
+          onLogoHeld: () => _requestAdmin(context),
           child: AttractPage(
             onStart: () async {
               RegistrationSessionScope.of(context).begin();
@@ -89,7 +101,10 @@ abstract final class AppRouter {
     );
   }
 
-  static Route<void> _interestsRoute(RouteSettings settings) {
+  static Route<void> _interestsRoute(
+    RouteSettings settings,
+    InterestSubmissionRepository repository,
+  ) {
     final registrationData = settings.arguments;
     if (registrationData is! VisitorRegistration) {
       return _registrationRoute(const RouteSettings(name: registration));
@@ -101,7 +116,7 @@ abstract final class AppRouter {
       pageBuilder: (context, animation, secondaryAnimation) {
         return InterestsScreen(
           sessionController: RegistrationSessionScope.of(context),
-          repository: _interestRepository,
+          repository: repository,
           onBack: () => Navigator.of(context).pop(),
           onSessionExpired: () => _resetSession(context),
           onCompleted: (submission) async {
@@ -130,9 +145,14 @@ abstract final class AppRouter {
     );
   }
 
-  static Route<void> _successRoute(RouteSettings settings) {
+  static Route<void> _successRoute(
+    RouteSettings settings,
+    InterestSubmissionRepository repository,
+  ) {
     final submission = settings.arguments;
-    if (submission is! RegistrationSession) return _attractRoute(settings);
+    if (submission is! RegistrationSession) {
+      return _attractRoute(settings, repository);
+    }
 
     return PageRouteBuilder<void>(
       settings: settings,
@@ -164,6 +184,48 @@ abstract final class AppRouter {
         );
       },
     );
+  }
+
+  static Route<void> _adminRoute(
+    RouteSettings settings,
+    InterestSubmissionRepository repository,
+  ) {
+    if (!identical(settings.arguments, _adminAccess)) {
+      return _attractRoute(const RouteSettings(name: attract), repository);
+    }
+    return PageRouteBuilder<void>(
+      settings: settings,
+      transitionDuration: AppMotion.screen,
+      reverseTransitionDuration: AppMotion.screen,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return KioskShell(
+          inactivityTimeout: null,
+          child: AdminScreen(
+            repository: repository,
+            exporter: const GpaExcelExporter(),
+            onBack: () => Navigator.of(context).pop(),
+          ),
+        );
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final progress = CurvedAnimation(
+          parent: animation,
+          curve: AppMotion.standardCurve,
+        );
+        return FadeTransition(opacity: progress, child: child);
+      },
+    );
+  }
+
+  static Future<void> _requestAdmin(BuildContext context) async {
+    final allowed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) =>
+          const AdminPinDialog(expectedPin: KioskConfiguration.adminPin),
+    );
+    if (allowed != true || !context.mounted) return;
+    await Navigator.of(context).pushNamed(admin, arguments: _adminAccess);
   }
 
   static void _resetSession(BuildContext context) {

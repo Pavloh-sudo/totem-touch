@@ -74,4 +74,34 @@ void main() {
     expect(sessionController.current, isNull);
     expect(sessionController.nextSessionId, isNot(preparedId));
   });
+
+  testWidgets('el acceso administrativo requiere mantener el logo y usar PIN', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1024, 768);
+    await tester.pumpWidget(const TotemTouchApp());
+    await tester.pump();
+
+    final logo = find.bySemanticsLabel('GPA');
+    final gesture = await tester.startGesture(tester.getCenter(logo));
+    await tester.pump(const Duration(seconds: 4, milliseconds: 999));
+    expect(find.text('Acceso administrativo'), findsNothing);
+    await tester.pump(const Duration(milliseconds: 1));
+    expect(find.text('Acceso administrativo'), findsOneWidget);
+    await gesture.up();
+
+    await tester.tap(find.text('2'));
+    await tester.tap(find.text('0'));
+    await tester.tap(find.text('2'));
+    await tester.tap(find.text('6'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 280));
+
+    expect(find.text('Administración'), findsOneWidget);
+    expect(find.text('Exportar Excel'), findsOneWidget);
+    expect(find.text('Probar conexión'), findsOneWidget);
+    expect(find.text('Volver al kiosco'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

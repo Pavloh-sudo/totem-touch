@@ -34,6 +34,53 @@ class RegistrationSession {
   bool get isCompleted => completedAt != null;
   String get finalInterest => interestPath.last;
 
+  Map<String, Object?> toJson() {
+    return {
+      'sessionId': sessionId,
+      'startedAt': startedAt.toIso8601String(),
+      'personType': personType?.name,
+      'name': name,
+      'company': company,
+      'email': email,
+      'phone': phone,
+      'wantsInformation': wantsInformation,
+      'interestPath': interestPath,
+      'completedAt': completedAt?.toIso8601String(),
+      'durationMilliseconds': duration?.inMilliseconds,
+      'kioskId': kioskId,
+      'eventId': eventId,
+    };
+  }
+
+  factory RegistrationSession.fromJson(Map<String, Object?> json) {
+    final profileName = json['personType'] as String?;
+    return RegistrationSession(
+      sessionId: json['sessionId']! as String,
+      startedAt: DateTime.parse(json['startedAt']! as String),
+      personType: profileName == null
+          ? null
+          : VisitorProfile.values.byName(profileName),
+      name: json['name']! as String,
+      company: json['company']! as String,
+      email: json['email']! as String,
+      phone: json['phone']! as String,
+      wantsInformation: json['wantsInformation']! as bool,
+      interestPath: List.unmodifiable(
+        (json['interestPath']! as List).cast<String>(),
+      ),
+      completedAt: switch (json['completedAt']) {
+        final String value => DateTime.parse(value),
+        _ => null,
+      },
+      duration: switch (json['durationMilliseconds']) {
+        final num value => Duration(milliseconds: value.toInt()),
+        _ => null,
+      },
+      kioskId: json['kioskId']! as String,
+      eventId: json['eventId']! as String,
+    );
+  }
+
   RegistrationSession withRegistration(VisitorRegistration registration) {
     return RegistrationSession(
       sessionId: sessionId,

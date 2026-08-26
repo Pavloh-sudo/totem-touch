@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import '../core/configuration/kiosk_configuration.dart';
 import '../core/session/registration_session_controller.dart';
+import '../data/local/indexed_db_interest_submission_repository.dart';
+import '../data/repositories/interest_submission_repository.dart';
 import 'app_router.dart';
 
 class TotemTouchApp extends StatefulWidget {
@@ -14,6 +16,7 @@ class TotemTouchApp extends StatefulWidget {
 
 class _TotemTouchAppState extends State<TotemTouchApp> {
   late final RegistrationSessionController _sessionController;
+  late final InterestSubmissionRepository _interestRepository;
 
   @override
   void initState() {
@@ -22,6 +25,7 @@ class _TotemTouchAppState extends State<TotemTouchApp> {
       kioskId: KioskConfiguration.kioskId,
       eventId: KioskConfiguration.eventId,
     );
+    _interestRepository = IndexedDbInterestSubmissionRepository();
   }
 
   @override
@@ -33,7 +37,10 @@ class _TotemTouchAppState extends State<TotemTouchApp> {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.kiosk,
         initialRoute: AppRouter.attract,
-        onGenerateRoute: AppRouter.onGenerateRoute,
+        onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
+          settings,
+          repository: _interestRepository,
+        ),
       ),
     );
   }

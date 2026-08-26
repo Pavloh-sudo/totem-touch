@@ -7,6 +7,13 @@ abstract final class KioskConfiguration {
     'EVENT_ID',
     defaultValue: 'evento-gpa',
   );
+  static const String adminPin = String.fromEnvironment(
+    'ADMIN_PIN',
+    defaultValue: '2026',
+  );
+  static const Duration adminLogoHold = Duration(
+    seconds: int.fromEnvironment('ADMIN_HOLD_SECONDS', defaultValue: 5),
+  );
   static const Duration inactivityTimeout = Duration(
     seconds: int.fromEnvironment('INACTIVITY_SECONDS', defaultValue: 90),
   );
