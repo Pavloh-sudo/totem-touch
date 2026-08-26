@@ -61,6 +61,7 @@ abstract final class _GpAssetRig {
       '$_root/$fileName',
       key: ValueKey('gp-layer-$fileName'),
       fit: BoxFit.contain,
+      cacheWidth: 512,
       filterQuality: FilterQuality.high,
       gaplessPlayback: true,
       excludeFromSemantics: true,

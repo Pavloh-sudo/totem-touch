@@ -67,9 +67,15 @@ class _InterestsScreenState extends State<InterestsScreen> {
             navigator: _navigator,
             onBackToRegistration: widget.onBack,
             onMascotStateChanged: _setMascotState,
-            onSave: (selection) async {
-              final session = widget.sessionController.complete(
-                selection.path.map((node) => node.title).toList(),
+            onSave: (selections) async {
+              final session = widget.sessionController.completeAll(
+                selections
+                    .map(
+                      (selection) => selection.path
+                          .map((node) => node.title)
+                          .toList(growable: false),
+                    )
+                    .toList(growable: false),
               );
               await widget.repository.save(session);
               return session;

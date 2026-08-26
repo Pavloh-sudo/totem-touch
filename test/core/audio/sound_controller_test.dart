@@ -5,20 +5,25 @@ import 'package:totem_touch/core/audio/sound_effect.dart';
 import '../../helpers/fake_sound_playback_engine.dart';
 
 void main() {
-  test('precarga todos los sonidos una sola vez', () async {
-    final engine = FakeSoundPlaybackEngine();
-    final controller = SoundController(engine: engine);
-    addTearDown(controller.dispose);
+  test(
+    'precarga primero los sonidos principales y después los demás',
+    () async {
+      final engine = FakeSoundPlaybackEngine();
+      final controller = SoundController(engine: engine);
+      addTearDown(controller.dispose);
 
-    await controller.preload();
-    await controller.preload();
+      await controller.preloadEssential();
+      await controller.preloadEssential();
+      await controller.preload();
+      await controller.preload();
 
-    expect(engine.preloadCalls, hasLength(1));
-    expect(
-      engine.preloadCalls.single,
-      SoundEffect.values.map((sound) => sound.assetPath),
-    );
-  });
+      expect(engine.preloadCalls, hasLength(2));
+      expect(
+        engine.preloadCalls.expand((paths) => paths),
+        SoundEffect.values.map((sound) => sound.assetPath),
+      );
+    },
+  );
 
   test('el primer gesto desbloquea el audio y reproduce el tap', () async {
     final engine = FakeSoundPlaybackEngine();

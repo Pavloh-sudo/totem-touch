@@ -12,6 +12,7 @@ import 'package:totem_touch/features/interests/presentation/interests_screen.dar
 import 'package:totem_touch/features/interests/presentation/widgets/interest_option_card.dart';
 import 'package:totem_touch/features/interests/presentation/widgets/interest_options_grid.dart';
 import 'package:totem_touch/shared/feedback/gpa_progress_indicator.dart';
+import 'package:totem_touch/shared/mascot/gp_mascot.dart';
 
 import '../../helpers/fake_sound_playback_engine.dart';
 
@@ -72,7 +73,7 @@ void main() {
     );
 
     expect(find.text('¿Qué te gustaría explorar?'), findsOneWidget);
-    expect(find.text('Elige el área que más te interesa.'), findsOneWidget);
+    expect(find.text('Elige un área para ver sus opciones.'), findsOneWidget);
     for (final node in InterestTree.roots) {
       expect(find.text(node.title), findsOneWidget);
       expect(find.text(node.description), findsOneWidget);
@@ -104,7 +105,8 @@ void main() {
     );
 
     expect(find.text(robotics.title), findsOneWidget);
-    expect(find.text('¿Qué opción te interesa?'), findsOneWidget);
+    expect(find.text('¿Qué opciones te interesan?'), findsOneWidget);
+    expect(find.text('Puedes elegir más de una opción.'), findsOneWidget);
     for (final node in robotics.children) {
       expect(find.text(node.title), findsOneWidget);
     }
@@ -121,7 +123,7 @@ void main() {
   });
 
   testWidgets(
-    'una hoja se guarda una sola vez y muestra el check antes de éxito',
+    'permite varias opciones, pregunta si continúa y guarda una sola vez',
     (tester) async {
       final repository = MemoryInterestSubmissionRepository();
       RegistrationSession? completed;
@@ -141,27 +143,41 @@ void main() {
         (AppMotion.interestCardStagger * 3) + AppMotion.interestCardEntry,
       );
       final leaf = cutting.children.first;
+      final secondLeaf = cutting.children[1];
 
       await tester.tap(find.text(leaf.title));
       await tester.tap(find.text(leaf.title));
-      await tester.pump(AppMotion.interestUnselected);
+      await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
 
-      expect(repository.submissions, hasLength(1));
+      expect(repository.submissions, isEmpty);
+      expect(find.text('Interés agregado'), findsOneWidget);
       expect(
-        find.byKey(const ValueKey('interest-saving-check')),
+        find.text('¿Quieres seleccionar algo más o terminamos?'),
         findsOneWidget,
       );
+      expect(find.text('Elegir otra'), findsOneWidget);
       expect(completed, isNull);
 
-      await tester.pump(
-        AppMotion.interestSaving - const Duration(milliseconds: 1),
+      await tester.tap(find.text('Elegir otra'));
+      await tester.pump(AppMotion.standard);
+      expect(
+        find.byKey(const ValueKey('interest-selection-count')),
+        findsOneWidget,
       );
-      expect(completed, isNull);
-      await tester.pump(const Duration(milliseconds: 1));
+      await tester.tap(find.text(secondLeaf.title));
+      await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+      expect(find.textContaining('Ya llevas 2 selecciones'), findsOneWidget);
+
+      await tester.tap(find.text('Terminar').last);
+      await tester.pump(AppMotion.interestSaving);
 
       expect(completed, isNotNull);
       expect(completed!.interestPath, [cutting.title, leaf.title]);
-      expect(completed!.finalInterest, leaf.title);
+      expect(completed!.interestPaths, [
+        [cutting.title, leaf.title],
+        [cutting.title, secondLeaf.title],
+      ]);
+      expect(completed!.finalInterest, secondLeaf.title);
       expect(repository.submissions, hasLength(1));
     },
   );
@@ -173,4 +189,52 @@ void main() {
     expect(InterestGridMetrics.resolve(9).columns, 3);
     expect(InterestGridMetrics.resolve(11).columns, 4);
   });
+
+  testWidgets('si falla el guardado permite volver a intentarlo', (
+    tester,
+  ) async {
+    final repository = _FailingRepository();
+    RegistrationSession? completed;
+    await pumpScreen(
+      tester,
+      repository: repository,
+      onCompleted: (submission) async => completed = submission,
+    );
+    await tester.pump(
+      (AppMotion.interestCardStagger * 5) + AppMotion.interestCardEntry,
+    );
+
+    final cutting = InterestTree.roots[1];
+    await tester.tap(find.text(cutting.title));
+    await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+    await tester.pump(
+      (AppMotion.interestCardStagger * 3) + AppMotion.interestCardEntry,
+    );
+    await tester.tap(find.text(cutting.children.first.title));
+    await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+    await tester.tap(find.text('Terminar'));
+    await tester.pump(AppMotion.interestSaving);
+
+    expect(completed, isNull);
+    expect(repository.submissions, isEmpty);
+    expect(
+      find.byKey(const ValueKey('interest-continue-or-finish')),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<GpMascot>(
+            find.byKey(const ValueKey('interests-header-mascot')),
+          )
+          .state,
+      GpMascotState.error,
+    );
+  });
+}
+
+class _FailingRepository extends MemoryInterestSubmissionRepository {
+  @override
+  Future<void> save(RegistrationSession session) async {
+    throw StateError('Sin espacio disponible');
+  }
 }

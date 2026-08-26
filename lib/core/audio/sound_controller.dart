@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import 'sound_effect.dart';
@@ -17,12 +18,15 @@ abstract interface class SoundPlaybackEngine {
 
 class SoundController extends ChangeNotifier {
   SoundController({SoundPlaybackEngine? engine})
-    : _engine = engine ?? AudioplayersSoundEngine();
+    : _engine =
+          engine ??
+          (kIsWeb ? AudioplayersSoundEngine() : SilentSoundPlaybackEngine());
 
   static final SoundController instance = SoundController();
 
   final SoundPlaybackEngine _engine;
 
+  Future<void>? _essentialPreloadFuture;
   Future<void>? _preloadFuture;
   bool _unlocked = false;
   bool _muted = false;
@@ -38,10 +42,33 @@ class SoundController extends ChangeNotifier {
     return _preloadFuture ??= _preloadAssets();
   }
 
+  Future<void> preloadEssential() {
+    return _essentialPreloadFuture ??= _preloadEssentialAssets();
+  }
+
+  Future<void> _preloadEssentialAssets() async {
+    try {
+      await _engine.preload([
+        SoundEffect.tap.assetPath,
+        SoundEffect.selection.assetPath,
+      ]);
+    } on Object catch (error, stackTrace) {
+      debugPrint('No se pudieron precargar los sonidos principales: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+  }
+
   Future<void> _preloadAssets() async {
+    await preloadEssential();
     try {
       await _engine.preload(
-        SoundEffect.values.map((sound) => sound.assetPath).toList(),
+        SoundEffect.values
+            .where(
+              (sound) =>
+                  sound != SoundEffect.tap && sound != SoundEffect.selection,
+            )
+            .map((sound) => sound.assetPath)
+            .toList(),
       );
     } on Object catch (error, stackTrace) {
       debugPrint('No se pudieron precargar los sonidos: $error');
@@ -115,6 +142,20 @@ class SoundController extends ChangeNotifier {
     unawaited(_engine.dispose());
     super.dispose();
   }
+}
+
+class SilentSoundPlaybackEngine implements SoundPlaybackEngine {
+  @override
+  Future<void> preload(List<String> assetPaths) async {}
+
+  @override
+  Future<void> play(String assetPath, double volume) async {}
+
+  @override
+  Future<void> stop() async {}
+
+  @override
+  Future<void> dispose() async {}
 }
 
 class AudioplayersSoundEngine implements SoundPlaybackEngine {

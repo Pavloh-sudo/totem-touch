@@ -56,14 +56,18 @@ class RegistrationSessionController extends ChangeNotifier {
   }
 
   RegistrationSession complete(List<String> interestPath) {
+    return completeAll([interestPath]);
+  }
+
+  RegistrationSession completeAll(List<List<String>> interestPaths) {
     final session = _requireCurrent();
     if (session.personType == null) {
       throw StateError('La sesión todavía no tiene datos de registro.');
     }
-    if (interestPath.isEmpty) {
-      throw ArgumentError.value(interestPath, 'interestPath');
+    if (interestPaths.isEmpty || interestPaths.any((path) => path.isEmpty)) {
+      throw ArgumentError.value(interestPaths, 'interestPaths');
     }
-    _current = session.complete(path: interestPath, at: _clock());
+    _current = session.completeAll(paths: interestPaths, at: _clock());
     notifyListeners();
     return _current!;
   }

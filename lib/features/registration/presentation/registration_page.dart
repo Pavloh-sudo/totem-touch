@@ -7,7 +7,6 @@ import '../../../data/models/visitor_registration.dart';
 import '../../../shared/keyboard/gpa_virtual_keyboard.dart';
 import 'widgets/contact_panel.dart';
 import 'widgets/identity_panel.dart';
-import 'widgets/privacy_notice_dialog.dart';
 
 enum _RegistrationPanel { identity, contact }
 
@@ -330,7 +329,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
       onConsentChanged: (value) {
         setState(() => _acceptsInformation = value);
       },
-      onPrivacyTap: () => showGpaPrivacyNotice(context),
       onBack: _returnToIdentity,
       onContinue: _finishRegistration,
     );

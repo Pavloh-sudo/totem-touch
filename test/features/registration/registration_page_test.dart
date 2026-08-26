@@ -153,7 +153,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('abre el aviso dentro de un modal', (tester) async {
+  testWidgets('no muestra un aviso de privacidad inexistente', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(1024, 768);
     addTearDown(tester.view.reset);
@@ -179,14 +179,61 @@ void main() {
     await tester.tap(find.text('Continuar'));
     await tester.pump();
     await tester.pump(AppMotion.standard);
-    await tester.tap(find.text('Consulta nuestro aviso de privacidad'));
-    await tester.pump(AppMotion.standard);
-
-    expect(find.text('Aviso de privacidad'), findsOneWidget);
+    expect(find.textContaining('aviso de privacidad'), findsNothing);
     expect(
-      find.textContaining('aviso de privacidad autorizado por Grupo GPA'),
+      find.byKey(const ValueKey('registration-contact-panel')),
       findsOneWidget,
     );
-    expect(find.text('Entendido'), findsOneWidget);
+  });
+
+  testWidgets('bloquea correos y teléfonos incompletos con mensajes claros', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1024, 768);
+    addTearDown(tester.view.reset);
+    final controller = SoundController(engine: FakeSoundPlaybackEngine());
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.kiosk,
+        home: KioskShell(
+          soundController: controller,
+          inactivityTimeout: null,
+          child: RegistrationPage(onBack: () {}, onContinue: (_) async {}),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Otro'));
+    await tester.tap(field('Nombre'));
+    await tester.pump();
+    await tester.pump(AppMotion.keyboardShow);
+    await tapKeys(tester, ['A']);
+    await tester.tap(find.text('Continuar'));
+    await tester.pump();
+    await tester.pump(AppMotion.standard);
+
+    await tester.tap(field('Correo electrónico'));
+    await tester.pump();
+    await tester.pump(AppMotion.keyboardShow);
+    await tapKeys(tester, ['P']);
+    await tester.tap(field('Teléfono'));
+    await tester.pump();
+    expect(find.text('Revisa el correo antes de continuar.'), findsOneWidget);
+
+    await tapKeys(tester, List.filled(5, '1'));
+    await tester.tap(field('Correo electrónico'));
+    await tester.pump();
+    expect(find.text('Revisa el teléfono antes de continuar.'), findsOneWidget);
+    expect(
+      tester
+          .widget<GpaPrimaryButton>(
+            find.widgetWithText(GpaPrimaryButton, 'Continuar'),
+          )
+          .onPressed,
+      isNull,
+    );
   });
 }

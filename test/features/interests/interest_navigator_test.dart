@@ -37,6 +37,10 @@ void main() {
     expect(finalResult, isNotNull);
     expect(finalResult!.leaf, leaf);
     expect(finalResult.path, [robotics, leaf]);
+    expect(navigator.selectionCount, 1);
+    expect(navigator.isSelected(leaf), isTrue);
+    expect(navigator.select(leaf), same(finalResult));
+    expect(navigator.selectionCount, 1);
     expect(navigator.depth, 1);
 
     expect(navigator.back(), isTrue);

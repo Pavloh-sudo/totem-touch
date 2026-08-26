@@ -5,6 +5,7 @@ import '../core/configuration/kiosk_configuration.dart';
 import '../core/session/registration_session_controller.dart';
 import '../data/local/indexed_db_interest_submission_repository.dart';
 import '../data/repositories/interest_submission_repository.dart';
+import 'app_preloader.dart';
 import 'app_router.dart';
 
 class TotemTouchApp extends StatefulWidget {
@@ -37,6 +38,10 @@ class _TotemTouchAppState extends State<TotemTouchApp> {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.kiosk,
         initialRoute: AppRouter.attract,
+        builder: (context, child) => AppPreloader(
+          repository: _interestRepository,
+          child: child ?? const SizedBox.shrink(),
+        ),
         onGenerateRoute: (settings) => AppRouter.onGenerateRoute(
           settings,
           repository: _interestRepository,

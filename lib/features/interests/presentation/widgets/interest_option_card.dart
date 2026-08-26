@@ -238,7 +238,9 @@ class _OptionContent extends StatelessWidget {
                   const Spacer(),
                   Icon(
                     node.isLeaf
-                        ? Icons.check_circle_outline_rounded
+                        ? selected
+                              ? Icons.check_circle_rounded
+                              : Icons.add_circle_outline_rounded
                         : Icons.arrow_forward_rounded,
                     color: selected ? AppColors.gpaCrimson : AppColors.graphite,
                     size: compact ? 21 : 23,

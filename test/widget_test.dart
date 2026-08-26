@@ -6,12 +6,27 @@ import 'package:totem_touch/shared/buttons/gpa_buttons.dart';
 import 'package:totem_touch/shared/mascot/gp_mascot.dart';
 
 void main() {
+  Future<void> waitForPreload(WidgetTester tester) async {
+    for (var attempt = 0; attempt < 30; attempt++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      if (find.byKey(const ValueKey('technical-splash')).evaluate().isEmpty) {
+        return;
+      }
+    }
+    fail('La precarga inicial no terminó.');
+  }
+
   testWidgets('muestra la bienvenida de GPA', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(1024, 768);
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(const TotemTouchApp());
+    expect(find.byKey(const ValueKey('technical-splash')), findsOneWidget);
+    await waitForPreload(tester);
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('Tu siguiente idea puede empezar aquí.'), findsOneWidget);
@@ -39,6 +54,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(const TotemTouchApp());
+    await waitForPreload(tester);
     await tester.pump(const Duration(milliseconds: 1500));
     final sessionController = tester
         .widget<RegistrationSessionScope>(find.byType(RegistrationSessionScope))
@@ -80,8 +96,9 @@ void main() {
   ) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(1024, 768);
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(const TotemTouchApp());
-    await tester.pump();
+    await waitForPreload(tester);
 
     final logo = find.bySemanticsLabel('GPA');
     final gesture = await tester.startGesture(tester.getCenter(logo));

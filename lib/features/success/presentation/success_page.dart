@@ -199,8 +199,11 @@ class _SuccessPageState extends State<SuccessPage>
                     ),
                     decoration: AppSurfaces.card(selected: true),
                     child: Text(
-                      session.interestPath.join('  ›  '),
-                      maxLines: 2,
+                      session.interestPaths.length == 1
+                          ? session.interestPath.join('  ›  ')
+                          : '${session.interestPaths.length} intereses: '
+                                '${session.interestPaths.map((path) => path.last).join('  •  ')}',
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.label.copyWith(
                         color: AppColors.gpaCrimson,

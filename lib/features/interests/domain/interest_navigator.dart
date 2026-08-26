@@ -15,15 +15,22 @@ class InterestNavigator extends ChangeNotifier {
 
   final List<InterestNode> _roots;
   final List<InterestNode> _history = [];
+  final List<FinalInterestSelection> _selections = [];
 
   List<InterestNode> get roots => _roots;
   List<InterestNode> get history => List.unmodifiable(_history);
   List<InterestNode> get breadcrumb => history;
+  List<FinalInterestSelection> get selections => List.unmodifiable(_selections);
+  int get selectionCount => _selections.length;
   int get depth => _history.length;
   bool get isAtRoot => _history.isEmpty;
   bool get canGoBack => _history.isNotEmpty;
   InterestNode? get currentNode => _history.isEmpty ? null : _history.last;
   List<InterestNode> get options => currentNode?.children ?? roots;
+
+  bool isSelected(InterestNode node) {
+    return _selections.any((selection) => selection.leaf.id == node.id);
+  }
 
   InterestMascotOutfit? get mascotOutfit {
     for (final node in _history.reversed) {
@@ -41,10 +48,17 @@ class InterestNavigator extends ChangeNotifier {
       );
     }
     if (node.isLeaf) {
-      return FinalInterestSelection(
+      final existing = _selections.where(
+        (selection) => selection.leaf.id == node.id,
+      );
+      if (existing.isNotEmpty) return existing.first;
+      final selection = FinalInterestSelection(
         path: List.unmodifiable([..._history, node]),
         leaf: node,
       );
+      _selections.add(selection);
+      notifyListeners();
+      return selection;
     }
     _history.add(node);
     notifyListeners();
@@ -59,8 +73,9 @@ class InterestNavigator extends ChangeNotifier {
   }
 
   void reset() {
-    if (_history.isEmpty) return;
+    if (_history.isEmpty && _selections.isEmpty) return;
     _history.clear();
+    _selections.clear();
     notifyListeners();
   }
 }

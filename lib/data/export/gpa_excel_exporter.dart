@@ -44,7 +44,12 @@ class GpaExcelExporter {
     if (bytes == null) {
       throw StateError('No se pudo construir el archivo de Excel.');
     }
-    return _finishWorkbook(bytes, records.length, formulaValues);
+    return _finishWorkbook(
+      bytes,
+      records.length,
+      _interestCount(records),
+      formulaValues,
+    );
   }
 
   Future<String> download(List<StoredRegistration> records) async {
@@ -66,18 +71,15 @@ class GpaExcelExporter {
       'Fecha',
       'Hora',
       'Nombre',
-      'Perfil',
-      'Empresa',
-      'Correo',
+      'Tipo',
+      'Empresa / institución',
+      'Correo electrónico',
       'Teléfono',
-      'Recibir info',
-      'Área',
-      'Nivel 2',
-      'Nivel 3',
-      'Nivel 4',
-      'Selección final',
+      'Recibir información',
+      'Cantidad de intereses',
+      'Intereses seleccionados',
       'Estado',
-      'Timestamp',
+      'Timestamp completo',
       'Duración (s)',
       'Kiosco',
       'Evento',
@@ -95,7 +97,7 @@ class GpaExcelExporter {
       final record = records[index];
       final session = record.session;
       final completedAt = session.completedAt ?? record.savedAt;
-      final path = session.interestPath;
+      final interests = session.interestPaths;
       final values = <CellValue?>[
         TextCellValue(session.sessionId),
         IntCellValue(record.localIndex),
@@ -103,15 +105,12 @@ class GpaExcelExporter {
         TimeCellValue.fromTimeOfDateTime(completedAt),
         TextCellValue(session.name),
         TextCellValue(session.personType?.label ?? ''),
-        TextCellValue(session.company),
+        _textCell(session.company),
         TextCellValue(session.email),
         TextCellValue(session.phone),
         TextCellValue(session.wantsInformation ? 'Sí' : 'No'),
-        TextCellValue(_pathValue(path, 0)),
-        TextCellValue(_pathValue(path, 1)),
-        TextCellValue(_pathValue(path, 2)),
-        TextCellValue(_pathValue(path, 3)),
-        TextCellValue(path.isEmpty ? '' : path.last),
+        IntCellValue(interests.length),
+        TextCellValue(interests.map((path) => path.join(' › ')).join(' | ')),
         TextCellValue(
           record.syncStatus == RegistrationSyncStatus.synced
               ? 'Sincronizado'
@@ -122,7 +121,16 @@ class GpaExcelExporter {
         TextCellValue(session.kioskId),
         TextCellValue(session.eventId),
       ];
-      _writeDataRow(sheet, values, row: index + 5, alternate: index.isOdd);
+      _writeDataRow(
+        sheet,
+        values,
+        row: index + 5,
+        alternate: index.isOdd,
+        centeredColumns: const {1, 9, 10, 12, 14},
+        dateColumn: 2,
+        timeColumn: 3,
+        timestampColumn: 13,
+      );
     }
 
     sheet.frozenRows = 5;
@@ -133,15 +141,12 @@ class GpaExcelExporter {
       12,
       24,
       17,
-      25,
-      30,
-      18,
-      16,
       28,
-      34,
-      34,
-      34,
-      42,
+      32,
+      18,
+      20,
+      20,
+      68,
       16,
       25,
       14,
@@ -157,6 +162,8 @@ class GpaExcelExporter {
   ) {
     const headers = [
       'Registro ID',
+      'Selección',
+      'Nombre',
       'Área',
       'Nivel 2',
       'Nivel 3',
@@ -172,26 +179,37 @@ class GpaExcelExporter {
     );
     _writeHeaderRow(sheet, headers, row: 4);
 
-    for (var index = 0; index < records.length; index++) {
-      final session = records[index].session;
-      final path = session.interestPath;
-      _writeDataRow(
-        sheet,
-        [
-          TextCellValue(session.sessionId),
-          TextCellValue(_pathValue(path, 0)),
-          TextCellValue(_pathValue(path, 1)),
-          TextCellValue(_pathValue(path, 2)),
-          TextCellValue(_pathValue(path, 3)),
-          TextCellValue(path.isEmpty ? '' : path.last),
-        ],
-        row: index + 5,
-        alternate: index.isOdd,
-      );
+    var interestIndex = 0;
+    for (final record in records) {
+      final session = record.session;
+      for (
+        var selectionIndex = 0;
+        selectionIndex < session.interestPaths.length;
+        selectionIndex++
+      ) {
+        final path = session.interestPaths[selectionIndex];
+        _writeDataRow(
+          sheet,
+          [
+            TextCellValue(session.sessionId),
+            IntCellValue(selectionIndex + 1),
+            TextCellValue(session.name),
+            _pathCell(path, 0),
+            _pathCell(path, 1),
+            _pathCell(path, 2),
+            _pathCell(path, 3),
+            TextCellValue(path.isEmpty ? '' : path.last),
+          ],
+          row: interestIndex + 5,
+          alternate: interestIndex.isOdd,
+          centeredColumns: const {1},
+        );
+        interestIndex++;
+      }
     }
 
     sheet.frozenRows = 5;
-    _setWidths(sheet, const [48, 30, 38, 38, 38, 45]);
+    _setWidths(sheet, const [48, 12, 24, 30, 38, 38, 38, 45]);
   }
 
   Map<String, num> _buildSummary(
@@ -221,15 +239,34 @@ class GpaExcelExporter {
       cellStyle: _totalStyle,
     );
 
-    _writeHeaderRow(sheet, const ['Área', 'Registros', 'Porcentaje'], row: 10);
-    final formulaValues = <String, num>{'A6': total};
+    sheet.merge(CellIndex.indexByString('E5'), CellIndex.indexByString('G5'));
+    sheet.updateCell(
+      CellIndex.indexByString('E5'),
+      TextCellValue('TOTAL SELECCIONES'),
+      cellStyle: _summaryLabelStyle,
+    );
+    sheet.merge(CellIndex.indexByString('E6'), CellIndex.indexByString('G8'));
+    sheet.updateCell(
+      CellIndex.indexByString('E6'),
+      const FormulaCellValue("=COUNTA('Intereses'!A6:A100000)"),
+      cellStyle: _totalStyle,
+    );
+
+    _writeHeaderRow(sheet, const [
+      'Área',
+      'Selecciones',
+      'Porcentaje',
+    ], row: 10);
+    final totalInterests = _interestCount(records);
+    final formulaValues = <String, num>{'A6': total, 'E6': totalInterests};
     for (var index = 0; index < _areas.length; index++) {
       final row = index + 11;
       final area = _areas[index];
       final count = records
-          .where((record) => record.session.interestPath.firstOrNull == area)
+          .expand((record) => record.session.interestPaths)
+          .where((path) => path.firstOrNull == area)
           .length;
-      final percentage = total == 0 ? 0.0 : count / total;
+      final percentage = totalInterests == 0 ? 0.0 : count / totalInterests;
       sheet.updateCell(
         CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row),
         TextCellValue(area),
@@ -237,12 +274,12 @@ class GpaExcelExporter {
       );
       sheet.updateCell(
         CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row),
-        FormulaCellValue("=COUNTIF('Registros'!K6:K100000,\"$area\")"),
+        FormulaCellValue("=COUNTIF('Intereses'!D6:D100000,\"$area\")"),
         cellStyle: index.isOdd ? _alternateCenteredStyle : _centeredStyle,
       );
       sheet.updateCell(
         CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row),
-        FormulaCellValue('=IF(\$A\$6=0,0,B${row + 1}/\$A\$6)'),
+        FormulaCellValue('=IF(\$E\$6=0,0,B${row + 1}/\$E\$6)'),
         cellStyle: (index.isOdd ? _alternateCenteredStyle : _centeredStyle)
             .copyWith(
               numberFormat: const CustomNumericNumFormat(formatCode: '0.0%'),
@@ -256,7 +293,7 @@ class GpaExcelExporter {
     sheet.updateCell(
       CellIndex.indexByString('A20'),
       TextCellValue(
-        'Los porcentajes se calculan sobre el total de registros exportados.',
+        'Los porcentajes se calculan sobre el total de intereses seleccionados.',
       ),
       cellStyle: _noteStyle,
     );
@@ -325,21 +362,25 @@ class GpaExcelExporter {
     List<CellValue?> values, {
     required int row,
     required bool alternate,
+    Set<int> centeredColumns = const {},
+    int? dateColumn,
+    int? timeColumn,
+    int? timestampColumn,
   }) {
     for (var column = 0; column < values.length; column++) {
       var style = alternate ? _alternateStyle : _bodyStyle;
-      if (column == 1 || column == 9 || column == 15 || column == 17) {
+      if (centeredColumns.contains(column)) {
         style = alternate ? _alternateCenteredStyle : _centeredStyle;
       }
-      if (column == 2) {
+      if (column == dateColumn) {
         style = style.copyWith(
           numberFormat: const CustomDateTimeNumFormat(formatCode: 'dd/mm/yyyy'),
         );
-      } else if (column == 3) {
+      } else if (column == timeColumn) {
         style = style.copyWith(
           numberFormat: const CustomTimeNumFormat(formatCode: 'hh:mm:ss'),
         );
-      } else if (column == 16) {
+      } else if (column == timestampColumn) {
         style = style.copyWith(
           numberFormat: const CustomDateTimeNumFormat(
             formatCode: 'dd/mm/yyyy hh:mm:ss',
@@ -364,18 +405,19 @@ class GpaExcelExporter {
   List<int> _finishWorkbook(
     List<int> bytes,
     int recordCount,
+    int interestCount,
     Map<String, num> summaryFormulaValues,
   ) {
     final archive = ZipDecoder().decodeBytes(bytes);
     _addFilter(
       archive,
       'xl/worksheets/sheet1.xml',
-      'A5:T${math.max(5, recordCount + 5)}',
+      'A5:Q${math.max(5, recordCount + 5)}',
     );
     _addFilter(
       archive,
       'xl/worksheets/sheet2.xml',
-      'A5:F${math.max(5, recordCount + 5)}',
+      'A5:H${math.max(5, interestCount + 5)}',
     );
     _addFormulaCaches(
       archive,
@@ -417,8 +459,19 @@ class GpaExcelExporter {
     archive.add(ArchiveFile.string(path, xml));
   }
 
-  String _pathValue(List<String> path, int index) {
-    return index < path.length ? path[index] : '';
+  CellValue? _pathCell(List<String> path, int index) {
+    return index < path.length ? TextCellValue(path[index]) : null;
+  }
+
+  CellValue? _textCell(String value) {
+    return value.isEmpty ? null : TextCellValue(value);
+  }
+
+  int _interestCount(List<StoredRegistration> records) {
+    return records.fold(
+      0,
+      (total, record) => total + record.session.interestPaths.length,
+    );
   }
 
   String _compactTimestamp(DateTime value) {
@@ -434,12 +487,12 @@ class GpaExcelExporter {
     return value is int ? value.toString() : value.toStringAsFixed(10);
   }
 
-  static final _crimson = ExcelColor.fromHexString('D92B32');
-  static final _carbon = ExcelColor.fromHexString('1D2127');
-  static final _graphite = ExcelColor.fromHexString('515A64');
-  static final _porcelain = ExcelColor.fromHexString('F7F8FA');
-  static final _white = ExcelColor.fromHexString('FFFFFF');
-  static final _line = ExcelColor.fromHexString('E4E7EB');
+  static final _crimson = ExcelColor.fromHexString('FFD92B32');
+  static final _carbon = ExcelColor.fromHexString('FF1D2127');
+  static final _graphite = ExcelColor.fromHexString('FF515A64');
+  static final _porcelain = ExcelColor.fromHexString('FFF7F8FA');
+  static final _white = ExcelColor.fromHexString('FFFFFFFF');
+  static final _line = ExcelColor.fromHexString('FFE4E7EB');
 
   static final _titleStyle = CellStyle(
     fontFamily: 'Manrope',

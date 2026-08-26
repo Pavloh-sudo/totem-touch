@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/audio/sound_effect.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/buttons/gpa_buttons.dart';
 import '../../../../shared/inputs/gpa_consent_checkbox.dart';
 import '../../../../shared/inputs/gpa_touch_field.dart';
@@ -25,7 +23,6 @@ class ContactPanel extends StatelessWidget {
     required this.onEmailTap,
     required this.onPhoneTap,
     required this.onConsentChanged,
-    required this.onPrivacyTap,
     required this.onBack,
     required this.onContinue,
     super.key,
@@ -45,7 +42,6 @@ class ContactPanel extends StatelessWidget {
   final VoidCallback onEmailTap;
   final VoidCallback onPhoneTap;
   final ValueChanged<bool> onConsentChanged;
-  final VoidCallback onPrivacyTap;
   final VoidCallback onBack;
   final VoidCallback onContinue;
 
@@ -93,24 +89,7 @@ class ContactPanel extends StatelessWidget {
           value: acceptsInformation,
           onChanged: onConsentChanged,
         ),
-        SizedBox(
-          height: 40,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton(
-              onPressed: onPrivacyTap,
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.gpaCrimson,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                textStyle: AppTypography.auxiliary.copyWith(
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-              child: const Text('Consulta nuestro aviso de privacidad'),
-            ),
-          ),
-        ),
+        const SizedBox(height: 12),
         const Spacer(),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

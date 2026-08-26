@@ -34,10 +34,9 @@ void main() {
         acceptsInformation: true,
       ),
     );
-    final completed = controller.complete([
-      'Robótica & Automatización',
-      'Cobots',
-      'Integración',
+    final completed = controller.completeAll([
+      ['Robótica & Automatización', 'Cobots', 'Integración'],
+      ['Software Industrial', 'Sistemas Web'],
     ]);
 
     expect(completed.sessionId, 'session-1');
@@ -52,6 +51,11 @@ void main() {
       'Cobots',
       'Integración',
     ]);
+    expect(completed.interestPaths, [
+      ['Robótica & Automatización', 'Cobots', 'Integración'],
+      ['Software Industrial', 'Sistemas Web'],
+    ]);
+    expect(completed.finalInterest, 'Sistemas Web');
     expect(completed.completedAt, DateTime(2026, 8, 25, 10, 3, 20));
     expect(completed.duration, const Duration(minutes: 3, seconds: 20));
     expect(completed.kioskId, 'kiosk-recepcion');

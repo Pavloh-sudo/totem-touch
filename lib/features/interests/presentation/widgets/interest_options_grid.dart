@@ -63,7 +63,8 @@ class InterestGridMetrics {
 class InterestOptionsGrid extends StatelessWidget {
   const InterestOptionsGrid({
     required this.nodes,
-    required this.selectedNode,
+    required this.selectedNodeIds,
+    required this.activeNode,
     required this.showSuccess,
     required this.enabled,
     required this.onSelected,
@@ -71,7 +72,8 @@ class InterestOptionsGrid extends StatelessWidget {
   });
 
   final List<InterestNode> nodes;
-  final InterestNode? selectedNode;
+  final Set<String> selectedNodeIds;
+  final InterestNode? activeNode;
   final bool showSuccess;
   final bool enabled;
   final ValueChanged<InterestNode> onSelected;
@@ -103,12 +105,14 @@ class InterestOptionsGrid extends StatelessWidget {
                     key: ValueKey('interest-option-${nodes[index].id}'),
                     node: nodes[index],
                     entryIndex: index,
-                    selected: selectedNode == nodes[index],
-                    dimmed:
-                        selectedNode != null && selectedNode != nodes[index],
+                    selected: selectedNodeIds.contains(nodes[index].id),
+                    dimmed: activeNode != null && activeNode != nodes[index],
                     compact: metrics.compact,
-                    showSuccess: showSuccess && selectedNode == nodes[index],
-                    onPressed: enabled && selectedNode == null
+                    showSuccess: showSuccess && activeNode == nodes[index],
+                    onPressed:
+                        enabled &&
+                            activeNode == null &&
+                            !selectedNodeIds.contains(nodes[index].id)
                         ? () => onSelected(nodes[index])
                         : null,
                   ),

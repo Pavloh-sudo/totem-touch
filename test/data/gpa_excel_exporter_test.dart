@@ -20,6 +20,9 @@ void main() {
         index: 1,
         id: 'GPA-20260826-11111111-1111-4111-8111-111111111111',
         path: const ['Robótica & Automatización', 'Automatización con Robots'],
+        additionalPaths: const [
+          ['Robótica & Automatización', 'Automatización con Cobots'],
+        ],
       ),
       _record(
         index: 2,
@@ -48,7 +51,23 @@ void main() {
       isA<TimeCellValue>(),
     );
     expect(
-      workbook['Intereses'].cell(CellIndex.indexByString('B7')).value,
+      workbook['Registros'].cell(CellIndex.indexByString('E5')).value,
+      TextCellValue('Nombre'),
+    );
+    expect(
+      workbook['Registros'].cell(CellIndex.indexByString('F5')).value,
+      TextCellValue('Tipo'),
+    );
+    expect(
+      workbook['Registros'].cell(CellIndex.indexByString('G5')).value,
+      TextCellValue('Empresa / institución'),
+    );
+    expect(
+      workbook['Registros'].cell(CellIndex.indexByString('L5')).value,
+      TextCellValue('Intereses seleccionados'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('D8')).value,
       TextCellValue('Sistemas de Corte'),
     );
     expect(
@@ -66,12 +85,55 @@ void main() {
     final summaryXml = utf8.decode(
       archive.find('xl/worksheets/sheet3.xml')!.content,
     );
+    final stylesXml = utf8.decode(archive.find('xl/styles.xml')!.content);
+    final sharedStringsXml = utf8.decode(
+      archive.find('xl/sharedStrings.xml')!.content,
+    );
 
-    expect(registrationsXml, contains('<autoFilter ref="A5:T7"/>'));
-    expect(interestsXml, contains('<autoFilter ref="A5:F7"/>'));
+    expect(registrationsXml, contains('<autoFilter ref="A5:Q7"/>'));
+    expect(interestsXml, contains('<autoFilter ref="A5:H8"/>'));
     expect(summaryXml, contains('<f>COUNTA('));
+    expect(summaryXml, contains('<v>3</v>'));
     expect(summaryXml, contains('<v>2</v>'));
+    final fillCount = int.parse(
+      RegExp(r'<fills count="(\d+)">').firstMatch(stylesXml)!.group(1)!,
+    );
+    expect(RegExp(r'<fill>').allMatches(stylesXml).length, fillCount);
+    for (final match in RegExp(r'rgb="([A-F0-9]+)"').allMatches(stylesXml)) {
+      expect(match.group(1), hasLength(8));
+    }
+    expect(sharedStringsXml, isNot(contains('<t xml:space="preserve"></t>')));
     expect(archive.any((file) => file.name.startsWith('xl/media/')), isTrue);
+  });
+
+  test('exporta muchos registros sin perder filas ni encabezados', () {
+    final logoBytes = Uint8List.fromList(
+      File('assets/branding/gpa_logo.png').readAsBytesSync(),
+    );
+    final records = List.generate(
+      250,
+      (index) => _record(
+        index: index + 1,
+        id: 'registro-${index + 1}',
+        path: const ['Software Industrial', 'Sistemas Web'],
+      ),
+    );
+
+    final bytes = const GpaExcelExporter().buildWithLogo(records, logoBytes);
+    final workbook = Excel.decodeBytes(bytes);
+
+    expect(
+      workbook['Registros'].cell(CellIndex.indexByString('E5')).value,
+      TextCellValue('Nombre'),
+    );
+    expect(
+      workbook['Registros'].cell(CellIndex.indexByString('A255')).value,
+      TextCellValue('registro-250'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('A255')).value,
+      TextCellValue('registro-250'),
+    );
   });
 }
 
@@ -79,6 +141,7 @@ StoredRegistration _record({
   required int index,
   required String id,
   required List<String> path,
+  List<List<String>> additionalPaths = const [],
 }) {
   final completedAt = DateTime(2026, 8, 26, 14, 32, index);
   return StoredRegistration(
@@ -90,11 +153,12 @@ StoredRegistration _record({
       startedAt: completedAt.subtract(const Duration(minutes: 2)),
       personType: VisitorProfile.professional,
       name: 'Persona $index',
-      company: 'GPA',
+      company: index.isOdd ? '' : 'GPA',
       email: 'persona$index@correo.com',
       phone: '1111111111',
       wantsInformation: index.isEven,
       interestPath: path,
+      additionalInterestPaths: additionalPaths,
       completedAt: completedAt,
       duration: const Duration(minutes: 2),
       kioskId: 'totem-prueba',

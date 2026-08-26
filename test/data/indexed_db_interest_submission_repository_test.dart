@@ -27,6 +27,9 @@ void main() {
           'Robótica & Automatización',
           'Automatización con Robots',
         ],
+        additionalInterestPaths: const [
+          ['Software Industrial', 'Sistemas Web'],
+        ],
         completedAt: DateTime(2026, 8, 26, 10, 2),
         duration: const Duration(minutes: 2),
         kioskId: 'totem-prueba',
@@ -45,7 +48,7 @@ void main() {
 
       expect(records, hasLength(1));
       expect(records.single.localIndex, 1);
-      expect(records.single.session.interestPath, submission.interestPath);
+      expect(records.single.session.interestPaths, submission.interestPaths);
       expect(records.single.isPending, isTrue);
       expect(summary.total, 1);
       expect(summary.pending, 1);

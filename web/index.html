@@ -12,8 +12,60 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.json">
   <title>Tótem Touch GPA</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #F7F8FA;
+    }
+
+    #gpa-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      gap: 24px;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(217, 43, 50, .08), transparent 210px),
+        #F7F8FA;
+      transition: opacity 220ms ease;
+    }
+
+    #gpa-splash img {
+      width: 118px;
+      height: 118px;
+      object-fit: contain;
+    }
+
+    #gpa-splash span {
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(81, 90, 100, .18);
+      border-top-color: #D92B32;
+      border-radius: 50%;
+      animation: gpa-spin .8s linear infinite;
+    }
+
+    @keyframes gpa-spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
+  <div id="gpa-splash" aria-label="Cargando Tótem GPA">
+    <img src="assets/assets/branding/gpa_logo.png" alt="GPA">
+    <span aria-hidden="true"></span>
+  </div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      const splash = document.getElementById('gpa-splash');
+      if (!splash) return;
+      splash.style.opacity = '0';
+      window.setTimeout(function () { splash.remove(); }, 240);
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
