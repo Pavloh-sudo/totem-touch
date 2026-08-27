@@ -165,6 +165,7 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
       _KeyboardAction.text => _KeyboardKey(
         label: key.label,
         compact: key.compact,
+        shortcut: key.shortcut,
         onTap: () => widget.onText(key.value!),
       ),
       _KeyboardAction.backspace => _BackspaceKey(
@@ -186,12 +187,6 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
         semanticLabel: 'Mostrar letras',
         onTap: () => setState(() => _emailPage = _EmailKeyboardPage.letters),
       ),
-      _KeyboardAction.domains => _KeyboardKey(
-        label: 'Correos',
-        semanticLabel: 'Mostrar opciones de correo',
-        compact: true,
-        onTap: () => setState(() => _emailPage = _EmailKeyboardPage.domains),
-      ),
     };
   }
 
@@ -208,70 +203,7 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
           _KeyboardKeySpec.done(flex: 2),
         ],
       ],
-      GpaKeyboardLayout.email when _emailPage == _EmailKeyboardPage.letters => [
-        _letters('qwertyuiop'),
-        _letters('asdfghjkl'),
-        [..._letters('zxcvbnm'), const _KeyboardKeySpec.backspace(flex: 2)],
-        const [
-          _KeyboardKeySpec.numbers(),
-          _KeyboardKeySpec.text('@', '@'),
-          _KeyboardKeySpec.text('.', '.'),
-          _KeyboardKeySpec.text('_', '_'),
-          _KeyboardKeySpec.text('-', '-'),
-          _KeyboardKeySpec.domains(flex: 2),
-          _KeyboardKeySpec.done(),
-        ],
-      ],
-      GpaKeyboardLayout.email when _emailPage == _EmailKeyboardPage.numbers =>
-        const [
-          [
-            _KeyboardKeySpec.text('1', '1'),
-            _KeyboardKeySpec.text('2', '2'),
-            _KeyboardKeySpec.text('3', '3'),
-            _KeyboardKeySpec.text('4', '4'),
-            _KeyboardKeySpec.text('5', '5'),
-          ],
-          [
-            _KeyboardKeySpec.text('6', '6'),
-            _KeyboardKeySpec.text('7', '7'),
-            _KeyboardKeySpec.text('8', '8'),
-            _KeyboardKeySpec.text('9', '9'),
-            _KeyboardKeySpec.text('0', '0'),
-          ],
-          [
-            _KeyboardKeySpec.text('@', '@'),
-            _KeyboardKeySpec.text('.', '.'),
-            _KeyboardKeySpec.text('_', '_'),
-            _KeyboardKeySpec.text('-', '-'),
-            _KeyboardKeySpec.backspace(),
-          ],
-          [
-            _KeyboardKeySpec.letters(),
-            _KeyboardKeySpec.domains(flex: 2),
-            _KeyboardKeySpec.backspace(),
-            _KeyboardKeySpec.done(),
-          ],
-        ],
-      GpaKeyboardLayout.email => const [
-        [
-          _KeyboardKeySpec.text('@gmail.com', '@gmail.com', compact: true),
-          _KeyboardKeySpec.text('@hotmail.com', '@hotmail.com', compact: true),
-        ],
-        [
-          _KeyboardKeySpec.text('@outlook.com', '@outlook.com', compact: true),
-          _KeyboardKeySpec.text('@live.com', '@live.com', compact: true),
-        ],
-        [
-          _KeyboardKeySpec.text('@yahoo.com', '@yahoo.com', compact: true),
-          _KeyboardKeySpec.text('@icloud.com', '@icloud.com', compact: true),
-        ],
-        [
-          _KeyboardKeySpec.letters(),
-          _KeyboardKeySpec.numbers(),
-          _KeyboardKeySpec.backspace(),
-          _KeyboardKeySpec.done(),
-        ],
-      ],
+      GpaKeyboardLayout.email => _emailRows(),
       GpaKeyboardLayout.numeric => const [
         [
           _KeyboardKeySpec.text('1', '1'),
@@ -297,6 +229,122 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
     };
   }
 
+  List<List<_KeyboardKeySpec>> _emailRows() {
+    return switch (_emailPage) {
+      _EmailKeyboardPage.letters => [
+        _letters('qwertyuiop'),
+        _letters('asdfghjkl'),
+        [..._letters('zxcvbnm'), const _KeyboardKeySpec.backspace(flex: 2)],
+        const [
+          _KeyboardKeySpec.numbers(),
+          _KeyboardKeySpec.text('@', '@'),
+          _KeyboardKeySpec.text('.', '.'),
+          _KeyboardKeySpec.text('_', '_'),
+          _KeyboardKeySpec.text('-', '-'),
+          _KeyboardKeySpec.text(
+            '@gmail.com',
+            '@gmail.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@hotmail.com',
+            '@hotmail.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@outlook.com',
+            '@outlook.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@yahoo.com',
+            '@yahoo.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@icloud.com',
+            '@icloud.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.done(),
+        ],
+      ],
+      _EmailKeyboardPage.numbers => const [
+        [
+          _KeyboardKeySpec.text('1', '1'),
+          _KeyboardKeySpec.text('2', '2'),
+          _KeyboardKeySpec.text('3', '3'),
+          _KeyboardKeySpec.text('4', '4'),
+          _KeyboardKeySpec.text('5', '5'),
+        ],
+        [
+          _KeyboardKeySpec.text('6', '6'),
+          _KeyboardKeySpec.text('7', '7'),
+          _KeyboardKeySpec.text('8', '8'),
+          _KeyboardKeySpec.text('9', '9'),
+          _KeyboardKeySpec.text('0', '0'),
+        ],
+        [
+          _KeyboardKeySpec.text('@', '@'),
+          _KeyboardKeySpec.text('.', '.'),
+          _KeyboardKeySpec.text('_', '_'),
+          _KeyboardKeySpec.text('-', '-'),
+          _KeyboardKeySpec.backspace(),
+        ],
+        [
+          _KeyboardKeySpec.letters(),
+          _KeyboardKeySpec.text(
+            '@gmail.com',
+            '@gmail.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@hotmail.com',
+            '@hotmail.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@outlook.com',
+            '@outlook.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@yahoo.com',
+            '@yahoo.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.text(
+            '@icloud.com',
+            '@icloud.com',
+            flex: 2,
+            compact: true,
+            shortcut: true,
+          ),
+          _KeyboardKeySpec.backspace(),
+          _KeyboardKeySpec.done(),
+        ],
+      ],
+    };
+  }
+
   List<_KeyboardKeySpec> _letters(String letters) {
     return letters
         .split('')
@@ -305,9 +353,9 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
   }
 }
 
-enum _EmailKeyboardPage { letters, numbers, domains }
+enum _EmailKeyboardPage { letters, numbers }
 
-enum _KeyboardAction { text, backspace, done, numbers, letters, domains }
+enum _KeyboardAction { text, backspace, done, numbers, letters }
 
 class _KeyboardKeySpec {
   const _KeyboardKeySpec.text(
@@ -315,18 +363,21 @@ class _KeyboardKeySpec {
     this.value, {
     this.flex = 1,
     this.compact = false,
+    this.shortcut = false,
   }) : action = _KeyboardAction.text;
 
   const _KeyboardKeySpec.backspace({this.flex = 1})
     : label = '',
       value = null,
       compact = false,
+      shortcut = false,
       action = _KeyboardAction.backspace;
 
   const _KeyboardKeySpec.done({this.flex = 1})
     : label = '',
       value = null,
       compact = false,
+      shortcut = false,
       action = _KeyboardAction.done;
 
   const _KeyboardKeySpec.numbers()
@@ -334,6 +385,7 @@ class _KeyboardKeySpec {
       value = null,
       flex = 1,
       compact = false,
+      shortcut = false,
       action = _KeyboardAction.numbers;
 
   const _KeyboardKeySpec.letters()
@@ -341,18 +393,14 @@ class _KeyboardKeySpec {
       value = null,
       flex = 1,
       compact = false,
+      shortcut = false,
       action = _KeyboardAction.letters;
-
-  const _KeyboardKeySpec.domains({this.flex = 1})
-    : label = 'Correos',
-      value = null,
-      compact = true,
-      action = _KeyboardAction.domains;
 
   final String label;
   final String? value;
   final int flex;
   final bool compact;
+  final bool shortcut;
   final _KeyboardAction action;
 }
 
@@ -364,6 +412,7 @@ class _KeyboardKey extends StatefulWidget {
     this.semanticLabel,
     this.accent = false,
     this.compact = false,
+    this.shortcut = false,
   });
 
   final String? label;
@@ -371,6 +420,7 @@ class _KeyboardKey extends StatefulWidget {
   final String? semanticLabel;
   final bool accent;
   final bool compact;
+  final bool shortcut;
   final VoidCallback onTap;
 
   @override
@@ -401,11 +451,17 @@ class _KeyboardKeyState extends State<_KeyboardKey> {
             duration: AppMotion.fast,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: widget.accent ? AppColors.gpaCrimson : AppColors.porcelain,
+              color: widget.accent
+                  ? AppColors.gpaCrimson
+                  : widget.shortcut
+                  ? AppColors.techCyan.withValues(alpha: 0.08)
+                  : AppColors.porcelain,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: widget.accent
                     ? AppColors.gpaCrimson
+                    : widget.shortcut
+                    ? AppColors.techCyan.withValues(alpha: 0.28)
                     : AppColors.steel.withValues(alpha: 0.38),
               ),
             ),
@@ -422,6 +478,8 @@ class _KeyboardKeyState extends State<_KeyboardKey> {
                     style: AppTypography.button.copyWith(
                       color: widget.accent
                           ? AppColors.pureWhite
+                          : widget.shortcut
+                          ? AppColors.graphite
                           : AppColors.carbon,
                       fontSize: widget.compact ? 13 : 18,
                     ),

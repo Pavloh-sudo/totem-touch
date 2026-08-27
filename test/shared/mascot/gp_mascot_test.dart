@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:totem_touch/core/animations/app_motion.dart';
 import 'package:totem_touch/shared/mascot/gp_mascot.dart';
 
 void main() {
@@ -189,7 +190,7 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 450));
+    await tester.pump(AppMotion.emphasis);
 
     update(() {
       state = GpMascotState.celebrate;
@@ -226,7 +227,7 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 450));
+    await tester.pump(AppMotion.emphasis);
 
     Opacity entrance() {
       return tester.widget<Opacity>(
@@ -331,7 +332,7 @@ void main() {
 
   testWidgets('el idle conserva su layout durante 60 segundos', (tester) async {
     await tester.pumpWidget(testApp(mascot(artwork: layeredArtwork())));
-    await tester.pump(const Duration(milliseconds: 450));
+    await tester.pump(AppMotion.emphasis);
     final initialRect = tester.getRect(find.byType(GpMascot));
 
     for (var second = 0; second < 60; second++) {
@@ -365,7 +366,7 @@ void main() {
 
     update(() => enabled = true);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 450));
+    await tester.pump(AppMotion.emphasis);
     expect(tester.takeException(), isNull);
   });
 }

@@ -196,12 +196,35 @@ class _OptionContent extends StatelessWidget {
           ),
         ),
         Positioned(
-          right: compact ? 10 : 18,
-          bottom: compact ? 9 : 16,
-          child: Icon(
-            node.illustrationData,
-            size: compact ? 58 : 78,
-            color: node.accentColor.withValues(alpha: 0.11),
+          right: compact ? 47 : 58,
+          top: compact ? 7 : 9,
+          child: Container(
+            width: compact ? 70 : 88,
+            height: compact ? 58 : 76,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  node.accentColor.withValues(alpha: 0.10),
+                  node.accentColor.withValues(alpha: 0),
+                ],
+              ),
+            ),
+            child: Opacity(
+              opacity: selected ? 0.92 : 0.78,
+              child: Image.asset(
+                node.illustrationAsset,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.medium,
+                gaplessPlayback: true,
+                excludeFromSemantics: true,
+                errorBuilder: (context, error, stackTrace) => Icon(
+                  node.illustrationData,
+                  size: compact ? 48 : 62,
+                  color: node.accentColor.withValues(alpha: 0.20),
+                ),
+              ),
+            ),
           ),
         ),
         Positioned(

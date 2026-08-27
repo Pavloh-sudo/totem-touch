@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:totem_touch/app/kiosk_shell.dart';
+import 'package:totem_touch/core/animations/app_motion.dart';
 import 'package:totem_touch/core/audio/sound_controller.dart';
 import 'package:totem_touch/core/configuration/kiosk_configuration.dart';
 import 'package:totem_touch/core/theme/app_theme.dart';
@@ -35,7 +36,7 @@ void main() {
     GpMascot mascot() => tester.widget<GpMascot>(find.byType(GpMascot));
 
     expect(mascot().state, GpMascotState.idle);
-    await tester.pump(const Duration(milliseconds: 420));
+    await tester.pump(AppMotion.emphasis);
     expect(mascot().state, GpMascotState.wave);
     await tester.pump(const Duration(milliseconds: 920));
     expect(mascot().state, GpMascotState.idle);

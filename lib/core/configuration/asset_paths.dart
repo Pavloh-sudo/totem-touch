@@ -2,6 +2,14 @@ abstract final class AssetPaths {
   static const gpaLogo = 'assets/branding/gpa_logo.png';
 
   static const _mascotRoot = 'assets/mascot/gp';
+  static const interestIllustrations = [
+    'assets/illustrations/robotics/interest_card.png',
+    'assets/illustrations/cutting/interest_card.png',
+    'assets/illustrations/manufacturing/interest_card.png',
+    'assets/illustrations/machinery/interest_card.png',
+    'assets/illustrations/software/interest_card.png',
+    'assets/illustrations/careers/interest_card.png',
+  ];
 
   static const initialImages = [
     gpaLogo,
@@ -23,5 +31,6 @@ abstract final class AssetPaths {
     '$_mascotRoot/arm_right_guide.png',
     '$_mascotRoot/arm_left_celebrate.png',
     '$_mascotRoot/arm_right_celebrate.png',
+    ...interestIllustrations,
   ];
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:totem_touch/app/app.dart';
+import 'package:totem_touch/core/animations/app_motion.dart';
 import 'package:totem_touch/core/session/registration_session_controller.dart';
 import 'package:totem_touch/shared/buttons/gpa_buttons.dart';
 import 'package:totem_touch/shared/mascot/gp_mascot.dart';
@@ -62,7 +63,11 @@ void main() {
     final preparedId = sessionController.nextSessionId;
     await tester.tap(find.text('Quiero conocer más'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 110));
+    final overlapProbe =
+        AppMotion.attractExit -
+        AppMotion.attractOverlap +
+        const Duration(milliseconds: 30);
+    await tester.pump(overlapProbe);
 
     final attractOpacity = tester.widget<Opacity>(
       find.byKey(const ValueKey('attract-exit-opacity')),
@@ -73,7 +78,7 @@ void main() {
     expect(attractOpacity.opacity, inExclusiveRange(0, 1));
     expect(registrationOpacity.opacity, inExclusiveRange(0, 1));
 
-    await tester.pump(const Duration(milliseconds: 210));
+    await tester.pump(AppMotion.attractToRegistration - overlapProbe);
     expect(find.text('Primero, queremos conocerte.'), findsOneWidget);
     expect(
       tester
@@ -86,7 +91,7 @@ void main() {
     expect(sessionController.current?.sessionId, preparedId);
 
     await tester.tap(find.text('Volver'));
-    await tester.pump(const Duration(milliseconds: 330));
+    await tester.pump(AppMotion.attractToRegistration);
     expect(sessionController.current, isNull);
     expect(sessionController.nextSessionId, isNot(preparedId));
   });

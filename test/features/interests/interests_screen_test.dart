@@ -67,7 +67,7 @@ void main() {
 
     final robotics = InterestTree.roots.first;
     await tester.tap(find.text(robotics.title));
-    await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+    await tester.pump(AppMotion.interestUnselected + AppMotion.screen);
     await tester.pump(
       (AppMotion.interestCardStagger * 10) + AppMotion.interestCardEntry,
     );
@@ -101,7 +101,7 @@ void main() {
 
       final cutting = InterestTree.roots[1];
       await tester.tap(find.text(cutting.title));
-      await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+      await tester.pump(AppMotion.interestUnselected + AppMotion.screen);
       await tester.pump(
         (AppMotion.interestCardStagger * 3) + AppMotion.interestCardEntry,
       );
@@ -110,7 +110,9 @@ void main() {
 
       await tester.tap(find.text(leaf.title));
       await tester.tap(find.text(leaf.title));
-      await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+      await tester.pump(
+        AppMotion.interestUnselected + AppMotion.interestFeedback,
+      );
 
       expect(find.byKey(const ValueKey('interest-explore-more')), findsNothing);
       expect(
@@ -118,7 +120,9 @@ void main() {
         findsOneWidget,
       );
       await tester.tap(find.text(secondLeaf.title));
-      await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+      await tester.pump(
+        AppMotion.interestUnselected + AppMotion.interestFeedback,
+      );
       expect(find.text('2 selecciones'), findsOneWidget);
 
       await tester.tap(find.text(leaf.title));
@@ -127,7 +131,7 @@ void main() {
       expect(result, isNull);
 
       await tester.tap(find.text('Continuar'));
-      await tester.pump(AppMotion.standard);
+      await tester.pump(AppMotion.graceful);
       expect(find.text('¿Te gustaría explorar algo más?'), findsOneWidget);
       expect(
         find.byKey(const ValueKey('interest-explore-more')),
@@ -136,20 +140,22 @@ void main() {
       expect(find.text('Elegir otra área'), findsOneWidget);
 
       await tester.tap(find.text('Elegir otra área'));
-      await tester.pump(AppMotion.standard);
+      await tester.pump(AppMotion.graceful);
       expect(find.byKey(const ValueKey('interest-explore-more')), findsNothing);
       expect(find.text('¿Te gustaría explorar algo más?'), findsOneWidget);
 
       final software = InterestTree.roots[4];
       await tester.tap(find.text(software.title));
-      await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+      await tester.pump(AppMotion.interestUnselected + AppMotion.screen);
       await tester.pump(
         (AppMotion.interestCardStagger * 4) + AppMotion.interestCardEntry,
       );
       await tester.tap(find.text(software.children.first.title));
-      await tester.pump(AppMotion.interestUnselected + AppMotion.standard);
+      await tester.pump(
+        AppMotion.interestUnselected + AppMotion.interestFeedback,
+      );
       await tester.tap(find.text('Continuar'));
-      await tester.pump(AppMotion.standard);
+      await tester.pump(AppMotion.graceful);
 
       await tester.tap(find.text('Continuar').last);
       expect(result, [

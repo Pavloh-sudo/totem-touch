@@ -82,7 +82,7 @@ class _InterestsPageState extends State<InterestsPage> {
         _showSuccess = true;
       });
       widget.onMascotStateChanged(GpMascotState.celebrate);
-      await Future<void>.delayed(AppMotion.standard);
+      await Future<void>.delayed(AppMotion.interestFeedback);
       if (!mounted) return;
     }
     setState(() {
@@ -198,7 +198,7 @@ class _InterestsPageState extends State<InterestsPage> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: AnimatedSwitcher(
-                    duration: AppMotion.standard,
+                    duration: AppMotion.screen,
                     switchInCurve: AppMotion.standardCurve,
                     switchOutCurve: AppMotion.standardCurve,
                     transitionBuilder: (child, animation) {
@@ -334,7 +334,7 @@ class _ExploreMoreOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: AppMotion.standard,
+      duration: AppMotion.graceful,
       curve: AppMotion.standardCurve,
       builder: (context, progress, child) {
         return ColoredBox(

@@ -26,6 +26,12 @@ flutter:
   assets:
     - assets/branding/
     - assets/mascot/gp/
+    - assets/illustrations/robotics/
+    - assets/illustrations/cutting/
+    - assets/illustrations/manufacturing/
+    - assets/illustrations/machinery/
+    - assets/illustrations/software/
+    - assets/illustrations/careers/
     - assets/audio/
   fonts:
     - family: Manrope

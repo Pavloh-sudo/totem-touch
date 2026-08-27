@@ -113,20 +113,16 @@ void main() {
     await tester.pump();
     await tapKeys(tester, ['1']);
     expect(find.text('Revisa el correo antes de continuar.'), findsNothing);
-    await tester.tap(find.text('ABC'));
-    await tester.pump();
-    await tester.tap(find.text('Correos'));
-    await tester.pump();
     for (final domain in [
       '@gmail.com',
       '@hotmail.com',
       '@outlook.com',
-      '@live.com',
       '@yahoo.com',
       '@icloud.com',
     ]) {
       expect(find.text(domain), findsOneWidget);
     }
+    expect(find.text('@live.com'), findsNothing);
     await tapKeys(tester, ['@gmail.com']);
 
     await tester.tap(field('Teléfono'));

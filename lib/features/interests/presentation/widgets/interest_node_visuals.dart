@@ -8,6 +8,7 @@ extension InterestNodeVisuals on InterestNode {
   Color get accentColor => accent.color;
   IconData get iconData => icon.data;
   IconData get illustrationData => illustration.data;
+  String get illustrationAsset => illustration.asset;
 }
 
 extension InterestAccentVisuals on InterestAccent {
@@ -45,6 +46,23 @@ extension InterestIllustrationVisuals on InterestIllustration {
       InterestIllustration.tools => Icons.handyman_rounded,
       InterestIllustration.computer => Icons.laptop_mac_rounded,
       InterestIllustration.education => Icons.school_rounded,
+    };
+  }
+
+  String get asset {
+    return switch (this) {
+      InterestIllustration.robot =>
+        'assets/illustrations/robotics/interest_card.png',
+      InterestIllustration.energy =>
+        'assets/illustrations/cutting/interest_card.png',
+      InterestIllustration.production =>
+        'assets/illustrations/manufacturing/interest_card.png',
+      InterestIllustration.tools =>
+        'assets/illustrations/machinery/interest_card.png',
+      InterestIllustration.computer =>
+        'assets/illustrations/software/interest_card.png',
+      InterestIllustration.education =>
+        'assets/illustrations/careers/interest_card.png',
     };
   }
 }
