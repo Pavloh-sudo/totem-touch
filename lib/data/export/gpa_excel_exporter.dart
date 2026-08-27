@@ -164,20 +164,28 @@ class GpaExcelExporter {
     Uint8List logoBytes,
   ) {
     const headers = [
-      'Registro ID',
-      'Selección',
+      'Registro #',
       'Nombre',
-      'Área',
-      'Nivel 2',
-      'Nivel 3',
-      'Nivel 4',
-      'Selección final',
+      'Perfil',
+      'Empresa / institución',
+      'Área principal',
+      'Tema seleccionado',
+      'Ruta completa',
+      'Selección',
+      'Fecha',
+      'Hora',
+      'Correo electrónico',
+      'Teléfono',
+      'Recibir información',
+      'Comentario adicional',
+      'ID técnico',
     ];
     _addBrandHeader(
       sheet,
       logoBytes,
-      title: 'RUTAS DE INTERÉS',
-      subtitle: 'Detalle completo de cada selección',
+      title: 'INTERESES POR PERSONA',
+      subtitle:
+          'Una fila por cada opción seleccionada · los datos de la persona se repiten para facilitar filtros',
       lastColumn: headers.length - 1,
     );
     _writeHeaderRow(sheet, headers, row: 4);
@@ -185,34 +193,63 @@ class GpaExcelExporter {
     var interestIndex = 0;
     for (final record in records) {
       final session = record.session;
+      final completedAt = session.completedAt ?? record.savedAt;
+      final selectionCount = session.interestPaths.length;
       for (
         var selectionIndex = 0;
-        selectionIndex < session.interestPaths.length;
+        selectionIndex < selectionCount;
         selectionIndex++
       ) {
         final path = session.interestPaths[selectionIndex];
         _writeDataRow(
           sheet,
           [
-            TextCellValue(session.sessionId),
-            IntCellValue(selectionIndex + 1),
+            IntCellValue(record.localIndex),
             TextCellValue(session.name),
-            _pathCell(path, 0),
-            _pathCell(path, 1),
-            _pathCell(path, 2),
-            _pathCell(path, 3),
+            TextCellValue(session.personType?.label ?? ''),
+            _textCell(session.company),
+            TextCellValue(path.isEmpty ? '' : path.first),
             TextCellValue(path.isEmpty ? '' : path.last),
+            TextCellValue(path.join(' › ')),
+            TextCellValue('${selectionIndex + 1} de $selectionCount'),
+            DateCellValue.fromDateTime(completedAt),
+            TimeCellValue.fromTimeOfDateTime(completedAt),
+            TextCellValue(session.email),
+            TextCellValue(session.phone),
+            TextCellValue(session.wantsInformation ? 'Sí' : 'No'),
+            _textCell(session.additionalMessage),
+            TextCellValue(session.sessionId),
           ],
           row: interestIndex + 5,
-          alternate: interestIndex.isOdd,
-          centeredColumns: const {1},
+          alternate: record.localIndex.isEven,
+          centeredColumns: const {0, 7, 12},
+          dateColumn: 8,
+          timeColumn: 9,
+          rowHeight: 28,
         );
         interestIndex++;
       }
     }
 
     sheet.frozenRows = 5;
-    _setWidths(sheet, const [48, 12, 24, 30, 38, 38, 38, 45]);
+    sheet.frozenColumns = 4;
+    _setWidths(sheet, const [
+      12,
+      24,
+      18,
+      28,
+      30,
+      46,
+      72,
+      14,
+      13,
+      12,
+      32,
+      18,
+      20,
+      48,
+      48,
+    ]);
   }
 
   Map<String, num> _buildSummary(
@@ -277,7 +314,7 @@ class GpaExcelExporter {
       );
       sheet.updateCell(
         CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row),
-        FormulaCellValue("=COUNTIF('Intereses'!D6:D100000,\"$area\")"),
+        FormulaCellValue("=COUNTIF('Intereses'!E6:E100000,\"$area\")"),
         cellStyle: index.isOdd ? _alternateCenteredStyle : _centeredStyle,
       );
       sheet.updateCell(
@@ -296,7 +333,7 @@ class GpaExcelExporter {
     sheet.updateCell(
       CellIndex.indexByString('A20'),
       TextCellValue(
-        'Los porcentajes se calculan sobre el total de intereses seleccionados.',
+        'Cada fila de Intereses representa una opción seleccionada; los porcentajes usan ese total.',
       ),
       cellStyle: _noteStyle,
     );
@@ -369,6 +406,7 @@ class GpaExcelExporter {
     int? dateColumn,
     int? timeColumn,
     int? timestampColumn,
+    double rowHeight = 24,
   }) {
     for (var column = 0; column < values.length; column++) {
       var style = alternate ? _alternateStyle : _bodyStyle;
@@ -396,7 +434,7 @@ class GpaExcelExporter {
         cellStyle: style,
       );
     }
-    sheet.setRowHeight(row, 24);
+    sheet.setRowHeight(row, rowHeight);
   }
 
   void _setWidths(Sheet sheet, List<double> widths) {
@@ -420,7 +458,7 @@ class GpaExcelExporter {
     _addFilter(
       archive,
       'xl/worksheets/sheet2.xml',
-      'A5:H${math.max(5, interestCount + 5)}',
+      'A5:O${math.max(5, interestCount + 5)}',
     );
     _addFormulaCaches(
       archive,
@@ -460,10 +498,6 @@ class GpaExcelExporter {
       return '<c r="$address"${match.group(2)!}><f>$formula</f><v>$cacheText</v></c>';
     });
     archive.add(ArchiveFile.string(path, xml));
-  }
-
-  CellValue? _pathCell(List<String> path, int index) {
-    return index < path.length ? TextCellValue(path[index]) : null;
   }
 
   CellValue? _textCell(String value) {

@@ -22,6 +22,7 @@ void main() {
         path: const ['Robótica & Automatización', 'Automatización con Robots'],
         additionalPaths: const [
           ['Robótica & Automatización', 'Automatización con Cobots'],
+          ['Software Industrial', 'Big Data, Ciencia de Datos e IA'],
         ],
         additionalMessage: 'Necesito una demostración en planta.',
       ),
@@ -76,9 +77,55 @@ void main() {
       TextCellValue('Necesito una demostración en planta.'),
     );
     expect(
-      workbook['Intereses'].cell(CellIndex.indexByString('D8')).value,
+      workbook['Intereses'].cell(CellIndex.indexByString('E5')).value,
+      TextCellValue('Área principal'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('F5')).value,
+      TextCellValue('Tema seleccionado'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('G5')).value,
+      TextCellValue('Ruta completa'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('A6')).value,
+      const IntCellValue(1),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('B6')).value,
+      TextCellValue('Persona 1'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('E6')).value,
+      TextCellValue('Robótica & Automatización'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('F6')).value,
+      TextCellValue('Automatización con Robots'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('G6')).value,
+      TextCellValue('Robótica & Automatización › Automatización con Robots'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('H6')).value,
+      TextCellValue('1 de 3'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('H8')).value,
+      TextCellValue('3 de 3'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('E9')).value,
       TextCellValue('Sistemas de Corte'),
     );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('O6')).value,
+      TextCellValue(records.first.session.sessionId),
+    );
+    expect(workbook['Intereses'].frozenRows, 5);
+    expect(workbook['Intereses'].frozenColumns, 4);
     expect(
       workbook['Resumen'].cell(CellIndex.indexByString('A6')).value,
       isA<FormulaCellValue>(),
@@ -100,9 +147,10 @@ void main() {
     );
 
     expect(registrationsXml, contains('<autoFilter ref="A5:R7"/>'));
-    expect(interestsXml, contains('<autoFilter ref="A5:H8"/>'));
+    expect(interestsXml, contains('<autoFilter ref="A5:O9"/>'));
     expect(summaryXml, contains('<f>COUNTA('));
-    expect(summaryXml, contains('<v>3</v>'));
+    expect(summaryXml, contains('COUNTIF(&apos;Intereses&apos;!E6:E100000'));
+    expect(summaryXml, contains('<v>4</v>'));
     expect(summaryXml, contains('<v>2</v>'));
     final fillCount = int.parse(
       RegExp(r'<fills count="(\d+)">').firstMatch(stylesXml)!.group(1)!,
@@ -141,6 +189,14 @@ void main() {
     );
     expect(
       workbook['Intereses'].cell(CellIndex.indexByString('A255')).value,
+      const IntCellValue(250),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('B255')).value,
+      TextCellValue('Persona 250'),
+    );
+    expect(
+      workbook['Intereses'].cell(CellIndex.indexByString('O255')).value,
       TextCellValue('registro-250'),
     );
   });
