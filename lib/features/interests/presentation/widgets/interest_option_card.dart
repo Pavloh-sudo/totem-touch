@@ -178,6 +178,43 @@ class _OptionContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasDescription = node.description.isNotEmpty;
     final iconSize = compact ? 38.0 : 42.0;
+    final largeDetailCard = node.isLeaf && !compact;
+    final illustration = Container(
+      width: largeDetailCard
+          ? 132
+          : compact
+          ? 82
+          : 88,
+      height: largeDetailCard
+          ? 116
+          : compact
+          ? 72
+          : 76,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            node.accentColor.withValues(alpha: 0.10),
+            node.accentColor.withValues(alpha: 0),
+          ],
+        ),
+      ),
+      child: Opacity(
+        opacity: selected ? 0.96 : 0.86,
+        child: Image.asset(
+          node.illustrationAsset,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.medium,
+          gaplessPlayback: true,
+          excludeFromSemantics: true,
+          errorBuilder: (context, error, stackTrace) => Icon(
+            node.illustrationData,
+            size: compact ? 48 : 62,
+            color: node.accentColor.withValues(alpha: 0.20),
+          ),
+        ),
+      ),
+    );
 
     return Stack(
       children: [
@@ -196,36 +233,20 @@ class _OptionContent extends StatelessWidget {
           ),
         ),
         Positioned(
-          right: compact ? 47 : 58,
-          top: compact ? 7 : 9,
-          child: Container(
-            width: compact ? 70 : 88,
-            height: compact ? 58 : 76,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  node.accentColor.withValues(alpha: 0.10),
-                  node.accentColor.withValues(alpha: 0),
-                ],
-              ),
-            ),
-            child: Opacity(
-              opacity: selected ? 0.92 : 0.78,
-              child: Image.asset(
-                node.illustrationAsset,
-                fit: BoxFit.contain,
-                filterQuality: FilterQuality.medium,
-                gaplessPlayback: true,
-                excludeFromSemantics: true,
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  node.illustrationData,
-                  size: compact ? 48 : 62,
-                  color: node.accentColor.withValues(alpha: 0.20),
-                ),
-              ),
-            ),
-          ),
+          left: largeDetailCard ? 0 : null,
+          right: largeDetailCard
+              ? 0
+              : compact
+              ? 45
+              : 58,
+          top: largeDetailCard
+              ? 8
+              : compact
+              ? 6
+              : 9,
+          child: largeDetailCard
+              ? Center(child: illustration)
+              : illustration,
         ),
         Positioned(
           left: 0,

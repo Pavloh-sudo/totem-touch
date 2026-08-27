@@ -10,7 +10,7 @@ abstract final class AppTypography {
     color: AppColors.textPrimary,
     fontSize: 48,
     height: 1.08,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w800,
   );
 
   static const screenTitle = TextStyle(
@@ -18,7 +18,7 @@ abstract final class AppTypography {
     color: AppColors.textPrimary,
     fontSize: 34,
     height: 1.15,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w800,
   );
 
   static const subtitle = TextStyle(
@@ -26,7 +26,7 @@ abstract final class AppTypography {
     color: AppColors.textPrimary,
     fontSize: 19,
     height: 1.35,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
   );
 
   static const body = TextStyle(
@@ -34,7 +34,7 @@ abstract final class AppTypography {
     color: AppColors.textSecondary,
     fontSize: 18,
     height: 1.45,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
   );
 
   static const field = TextStyle(
@@ -50,7 +50,7 @@ abstract final class AppTypography {
     color: AppColors.textPrimary,
     fontSize: 16,
     height: 1.3,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w600,
   );
 
   static const button = TextStyle(
@@ -66,7 +66,7 @@ abstract final class AppTypography {
     color: AppColors.textSecondary,
     fontSize: 14,
     height: 1.4,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
   );
 
   static const textTheme = TextTheme(

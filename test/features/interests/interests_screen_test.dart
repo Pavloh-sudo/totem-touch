@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:totem_touch/core/animations/app_motion.dart';
 import 'package:totem_touch/core/audio/sound_controller.dart';
@@ -6,6 +7,7 @@ import 'package:totem_touch/core/theme/app_theme.dart';
 import 'package:totem_touch/features/interests/domain/interest_tree.dart';
 import 'package:totem_touch/features/interests/presentation/interests_screen.dart';
 import 'package:totem_touch/features/interests/presentation/widgets/interest_option_card.dart';
+import 'package:totem_touch/features/interests/presentation/widgets/interest_node_visuals.dart';
 import 'package:totem_touch/features/interests/presentation/widgets/interest_options_grid.dart';
 import 'package:totem_touch/shared/feedback/gpa_progress_indicator.dart';
 
@@ -80,7 +82,7 @@ void main() {
     }
     final cards = find.byType(InterestOptionCard);
     expect(cards, findsNWidgets(11));
-    expect(tester.getSize(cards.first), const Size(221.5, 132));
+    expect(tester.getSize(cards.first), const Size(221.5, 168));
     expect(
       tester
           .widget<GpaProgressIndicator>(find.byType(GpaProgressIndicator))
@@ -171,5 +173,21 @@ void main() {
     expect(InterestGridMetrics.resolve(6).columns, 3);
     expect(InterestGridMetrics.resolve(9).columns, 3);
     expect(InterestGridMetrics.resolve(11).columns, 4);
+  });
+
+  test('cada subcategoría tiene una ilustración propia disponible', () async {
+    final leaves = InterestTree.roots
+        .expand((root) => root.children)
+        .toList(growable: false);
+    final paths = leaves
+        .map((node) => node.illustrationAsset)
+        .toList(growable: false);
+
+    expect(leaves, hasLength(41));
+    expect(paths.toSet(), hasLength(41));
+    for (final path in paths) {
+      final asset = await rootBundle.load(path);
+      expect(asset.lengthInBytes, greaterThan(0), reason: path);
+    }
   });
 }

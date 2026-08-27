@@ -8,10 +8,21 @@ extension InterestNodeVisuals on InterestNode {
   Color get accentColor => accent.color;
   IconData get iconData => icon.data;
   IconData get illustrationData => illustration.data;
-  String get illustrationAsset => illustration.asset;
+  String get illustrationAsset => isLeaf
+      ? 'assets/illustrations/${accent.assetFolder}/$id.png'
+      : illustration.asset;
 }
 
 extension InterestAccentVisuals on InterestAccent {
+  String get assetFolder => switch (this) {
+    InterestAccent.robotics => 'robotics',
+    InterestAccent.cutting => 'cutting',
+    InterestAccent.manufacturing => 'manufacturing',
+    InterestAccent.machinery => 'machinery',
+    InterestAccent.software => 'software',
+    InterestAccent.careers => 'careers',
+  };
+
   Color get color {
     return switch (this) {
       InterestAccent.robotics => AreaColors.robotics,

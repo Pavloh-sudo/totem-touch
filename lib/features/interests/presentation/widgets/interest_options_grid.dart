@@ -7,12 +7,14 @@ class InterestGridMetrics {
   const InterestGridMetrics({
     required this.columns,
     required this.cardHeight,
+    required this.maxCardHeight,
     required this.spacing,
     required this.compact,
   });
 
   final int columns;
   final double cardHeight;
+  final double maxCardHeight;
   final double spacing;
   final bool compact;
 
@@ -23,6 +25,7 @@ class InterestGridMetrics {
       return InterestGridMetrics(
         columns: count.clamp(1, 2),
         cardHeight: 210,
+        maxCardHeight: 250,
         spacing: 20,
         compact: false,
       );
@@ -31,6 +34,7 @@ class InterestGridMetrics {
       return const InterestGridMetrics(
         columns: 2,
         cardHeight: 180,
+        maxCardHeight: 230,
         spacing: 20,
         compact: false,
       );
@@ -39,6 +43,7 @@ class InterestGridMetrics {
       return const InterestGridMetrics(
         columns: 3,
         cardHeight: 166,
+        maxCardHeight: 215,
         spacing: 20,
         compact: false,
       );
@@ -47,6 +52,7 @@ class InterestGridMetrics {
       return const InterestGridMetrics(
         columns: 3,
         cardHeight: 132,
+        maxCardHeight: 168,
         spacing: 14,
         compact: true,
       );
@@ -54,6 +60,7 @@ class InterestGridMetrics {
     return const InterestGridMetrics(
       columns: 4,
       cardHeight: 132,
+      maxCardHeight: 168,
       spacing: 14,
       compact: true,
     );
@@ -82,14 +89,23 @@ class InterestOptionsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final metrics = InterestGridMetrics.resolve(nodes.length);
     final rows = metrics.rowsFor(nodes.length);
-    final totalHeight =
-        (rows * metrics.cardHeight) + ((rows - 1) * metrics.spacing);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final cardWidth =
             (constraints.maxWidth - ((metrics.columns - 1) * metrics.spacing)) /
             metrics.columns;
+        final spacingHeight = (rows - 1) * metrics.spacing;
+        final availableCardHeight = constraints.maxHeight.isFinite
+            ? (constraints.maxHeight - spacingHeight) / rows
+            : metrics.cardHeight;
+        final shouldUseAvailableHeight = nodes.every((node) => node.isLeaf);
+        final cardHeight = shouldUseAvailableHeight
+            ? availableCardHeight
+                  .clamp(metrics.cardHeight, metrics.maxCardHeight)
+                  .toDouble()
+            : metrics.cardHeight;
+        final totalHeight = (rows * cardHeight) + spacingHeight;
 
         return SizedBox(
           height: totalHeight,
@@ -100,7 +116,7 @@ class InterestOptionsGrid extends StatelessWidget {
               for (var index = 0; index < nodes.length; index++)
                 SizedBox(
                   width: cardWidth,
-                  height: metrics.cardHeight,
+                  height: cardHeight,
                   child: InterestOptionCard(
                     key: ValueKey('interest-option-${nodes[index].id}'),
                     node: nodes[index],
