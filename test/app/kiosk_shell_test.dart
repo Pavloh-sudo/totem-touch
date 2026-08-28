@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/app/kiosk_header.dart';
-import 'package:totem_touch/app/kiosk_shell.dart';
-import 'package:totem_touch/core/audio/sound_controller.dart';
-import 'package:totem_touch/core/configuration/kiosk_configuration.dart';
-import 'package:totem_touch/shared/feedback/gpa_progress_indicator.dart';
+import 'package:kiosco_gpa/app/kiosk_header.dart';
+import 'package:kiosco_gpa/app/kiosk_shell.dart';
+import 'package:kiosco_gpa/core/audio/sound_controller.dart';
+import 'package:kiosco_gpa/core/configuration/kiosk_configuration.dart';
+import 'package:kiosco_gpa/shared/feedback/gpa_progress_indicator.dart';
 
 import '../helpers/fake_sound_playback_engine.dart';
 

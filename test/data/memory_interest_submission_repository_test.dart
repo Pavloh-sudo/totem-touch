@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/data/local/memory_interest_submission_repository.dart';
-import 'package:totem_touch/data/models/registration_session.dart';
-import 'package:totem_touch/data/models/visitor_registration.dart';
+import 'package:kiosco_gpa/data/local/memory_interest_submission_repository.dart';
+import 'package:kiosco_gpa/data/models/registration_session.dart';
+import 'package:kiosco_gpa/data/models/visitor_registration.dart';
 
 void main() {
   test('el mismo registro no se guarda dos veces', () async {

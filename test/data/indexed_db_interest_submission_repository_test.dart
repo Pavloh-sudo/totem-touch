@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:idb_shim/idb_shim.dart';
-import 'package:totem_touch/data/local/indexed_db_interest_submission_repository.dart';
-import 'package:totem_touch/data/models/registration_session.dart';
-import 'package:totem_touch/data/models/visitor_registration.dart';
+import 'package:kiosco_gpa/data/local/indexed_db_interest_submission_repository.dart';
+import 'package:kiosco_gpa/data/models/registration_session.dart';
+import 'package:kiosco_gpa/data/models/visitor_registration.dart';
 
 void main() {
   test(
@@ -33,7 +33,7 @@ void main() {
         additionalMessage: 'Busco una integración para la planta.',
         completedAt: DateTime(2026, 8, 26, 10, 2),
         duration: const Duration(minutes: 2),
-        kioskId: 'totem-prueba',
+        kioskId: 'kiosco-prueba',
         eventId: 'evento-prueba',
       );
 

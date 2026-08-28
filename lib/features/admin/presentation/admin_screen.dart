@@ -97,7 +97,7 @@ class _AdminScreenState extends State<AdminScreen> {
 
       if (announce) {
         if (!localReady) {
-          _showMessage('El almacenamiento de este tótem no está disponible.');
+          _showMessage('El almacenamiento de este kiosco no está disponible.');
         } else if (!serverReady) {
           _showMessage(
             'Guardado local listo. El servidor no respondió; los registros seguirán pendientes.',
@@ -132,7 +132,7 @@ class _AdminScreenState extends State<AdminScreen> {
       builder: (context) => const _ResetConfirmationDialog(
         title: '¿Estás seguro?',
         message:
-            'Esto borrará todos los registros guardados en este tótem. No borrará archivos, otros sitios ni la copia del servidor.',
+            'Esto borrará todos los registros guardados en este kiosco. No borrará archivos, otros sitios ni la copia del servidor.',
         confirmLabel: 'Continuar',
         cancelLabel: 'Cancelar',
       ),
@@ -145,7 +145,7 @@ class _AdminScreenState extends State<AdminScreen> {
       builder: (context) => const _ResetConfirmationDialog(
         title: '¿De verdad estás seguro?',
         message:
-            'El contador local volverá a cero y esta acción no se puede deshacer en este tótem.',
+            'El contador local volverá a cero y esta acción no se puede deshacer en este kiosco.',
         confirmLabel: 'Sí, borrar registros',
         cancelLabel: 'No, conservarlos',
         finalStep: true,
@@ -163,7 +163,7 @@ class _AdminScreenState extends State<AdminScreen> {
       if (!mounted) return;
       setState(() => _summary = widget.repository.getSummary());
       _showMessage(
-        'Registros de este tótem reiniciados. La copia del servidor no se borró.',
+        'Registros de este kiosco reiniciados. La copia del servidor no se borró.',
         success: true,
       );
     } catch (_) {
@@ -207,7 +207,7 @@ class _AdminScreenState extends State<AdminScreen> {
             Text('Administración', style: AppTypography.screenTitle),
             const SizedBox(height: 2),
             Text(
-              'Revisa los registros y el estado de guardado del tótem.',
+              'Revisa los registros y el estado de guardado del kiosco.',
               style: AppTypography.body.copyWith(fontSize: 16),
             ),
             const SizedBox(height: 14),
@@ -315,14 +315,6 @@ class _AdminScreenState extends State<AdminScreen> {
                   : GpaButtonState.normal,
               onPressed: _clearingRecords ? null : _requestRecordsReset,
             ),
-            const SizedBox(height: 4),
-            Center(
-              child: Text(
-                'Solo borra los registros de este navegador; no toca cPanel ni otros sitios.',
-                textAlign: TextAlign.center,
-                style: AppTypography.auxiliary.copyWith(fontSize: 12),
-              ),
-            ),
           ],
         );
       },
@@ -350,7 +342,7 @@ class _StorageStatusCard extends StatelessWidget {
       return 'El almacenamiento local no está disponible. No realices registros hasta revisarlo.';
     }
     if (serverState == _StorageState.unavailable) {
-      return 'Puedes seguir usando el tótem. Los pendientes se enviarán al recuperar conexión.';
+      return 'Puedes seguir usando el kiosco. Los pendientes se enviarán al recuperar conexión.';
     }
     return 'Cada registro se guarda primero aquí y después queda respaldado en el servidor.';
   }
@@ -397,7 +389,7 @@ class _StorageStatusCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          _StorageStatusPill(label: 'En este tótem', state: localState),
+          _StorageStatusPill(label: 'En este kiosco', state: localState),
           const SizedBox(width: 8),
           _StorageStatusPill(label: 'Servidor', state: serverState),
         ],

@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:totem_touch/data/models/registration_session.dart';
-import 'package:totem_touch/data/models/visitor_registration.dart';
-import 'package:totem_touch/data/remote/registration_api_client.dart';
+import 'package:kiosco_gpa/data/models/registration_session.dart';
+import 'package:kiosco_gpa/data/models/visitor_registration.dart';
+import 'package:kiosco_gpa/data/remote/registration_api_client.dart';
 
 void main() {
   test('envía todas las rutas y acepta registros nuevos o repetidos', () async {
@@ -23,7 +23,7 @@ void main() {
       );
     });
     final api = RegistrationApiClient(
-      baseUri: Uri.parse('https://gpa.example/totem/api/'),
+      baseUri: Uri.parse('https://gpa.example/kiosco/api/'),
       client: client,
     );
     addTearDown(api.close);
@@ -35,7 +35,7 @@ void main() {
     expect(requests, hasLength(2));
     expect(
       requests.first.url,
-      Uri.parse('https://gpa.example/totem/api/registro.php'),
+      Uri.parse('https://gpa.example/kiosco/api/registro.php'),
     );
     final payload = jsonDecode(requests.first.body) as Map<String, dynamic>;
     expect(payload['sessionId'], session.sessionId);
@@ -79,7 +79,7 @@ RegistrationSession _session() {
     additionalMessage: 'Necesito más información.',
     completedAt: DateTime(2026, 8, 27, 10, 3),
     duration: const Duration(minutes: 3),
-    kioskId: 'totem-prueba',
+    kioskId: 'kiosco-prueba',
     eventId: 'evento-prueba',
   );
 }

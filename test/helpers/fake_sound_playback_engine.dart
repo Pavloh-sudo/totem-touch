@@ -1,4 +1,4 @@
-import 'package:totem_touch/core/audio/sound_controller.dart';
+import 'package:kiosco_gpa/core/audio/sound_controller.dart';
 
 class FakeSoundPlaybackEngine implements SoundPlaybackEngine {
   final List<List<String>> preloadCalls = [];

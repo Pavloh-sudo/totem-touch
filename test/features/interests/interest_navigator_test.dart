@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/features/interests/domain/interest_navigator.dart';
-import 'package:totem_touch/features/interests/domain/interest_node.dart';
-import 'package:totem_touch/features/interests/domain/interest_tree.dart';
+import 'package:kiosco_gpa/features/interests/domain/interest_navigator.dart';
+import 'package:kiosco_gpa/features/interests/domain/interest_node.dart';
+import 'package:kiosco_gpa/features/interests/domain/interest_tree.dart';
 
 void main() {
   test('el árbol contiene las seis áreas y las 41 opciones indicadas', () {

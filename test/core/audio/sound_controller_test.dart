@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/core/audio/sound_controller.dart';
-import 'package:totem_touch/core/audio/sound_effect.dart';
+import 'package:kiosco_gpa/core/audio/sound_controller.dart';
+import 'package:kiosco_gpa/core/audio/sound_effect.dart';
 
 import '../../helpers/fake_sound_playback_engine.dart';
 

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/app/kiosk_shell.dart';
-import 'package:totem_touch/core/theme/app_theme.dart';
-import 'package:totem_touch/data/export/gpa_excel_exporter.dart';
-import 'package:totem_touch/data/local/memory_interest_submission_repository.dart';
-import 'package:totem_touch/data/models/registration_session.dart';
-import 'package:totem_touch/data/models/visitor_registration.dart';
-import 'package:totem_touch/features/admin/presentation/admin_screen.dart';
+import 'package:kiosco_gpa/app/kiosk_shell.dart';
+import 'package:kiosco_gpa/core/theme/app_theme.dart';
+import 'package:kiosco_gpa/data/export/gpa_excel_exporter.dart';
+import 'package:kiosco_gpa/data/local/memory_interest_submission_repository.dart';
+import 'package:kiosco_gpa/data/models/registration_session.dart';
+import 'package:kiosco_gpa/data/models/visitor_registration.dart';
+import 'package:kiosco_gpa/features/admin/presentation/admin_screen.dart';
 
 void main() {
   testWidgets('exige dos confirmaciones antes de borrar registros locales', (
@@ -36,10 +36,14 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Estado de guardado'), findsOneWidget);
-    expect(find.text('En este tótem'), findsOneWidget);
+    expect(find.text('En este kiosco'), findsOneWidget);
     expect(find.text('Servidor'), findsOneWidget);
     expect(find.textContaining('se conectará después'), findsNothing);
     expect(find.text('Reiniciar registros de prueba'), findsOneWidget);
+    expect(
+      find.textContaining('Solo borra los registros de este navegador'),
+      findsNothing,
+    );
     expect(tester.takeException(), isNull);
 
     await tester.tap(find.text('Reiniciar registros de prueba'));
@@ -80,7 +84,7 @@ RegistrationSession _session() {
     ],
     completedAt: DateTime(2026, 8, 28, 10, 2),
     duration: const Duration(minutes: 2),
-    kioskId: 'totem-prueba',
+    kioskId: 'kiosco-prueba',
     eventId: 'evento-prueba',
   );
 }

@@ -76,7 +76,7 @@ class ContactPanel extends StatelessWidget {
                 controller: phoneController,
                 focusNode: phoneFocus,
                 label: 'Teléfono',
-                hint: '10 dígitos',
+                hint: '(614) 123-4567',
                 errorText: phoneError,
                 isValid: phoneValid,
                 onTap: onPhoneTap,

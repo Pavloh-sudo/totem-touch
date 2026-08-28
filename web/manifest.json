@@ -1,11 +1,11 @@
 {
-  "name": "Tótem Touch GPA",
-  "short_name": "Tótem Touch",
+  "name": "Kiosco GPA",
+  "short_name": "Kiosco GPA",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#101113",
   "theme_color": "#D92B32",
-  "description": "Tótem interactivo de GPA",
+  "description": "Kiosco interactivo de GPA",
   "orientation": "landscape",
   "prefer_related_applications": false,
   "icons": [

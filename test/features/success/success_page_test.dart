@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/app/kiosk_shell.dart';
-import 'package:totem_touch/core/animations/app_motion.dart';
-import 'package:totem_touch/core/audio/sound_controller.dart';
-import 'package:totem_touch/core/theme/app_theme.dart';
-import 'package:totem_touch/data/models/registration_session.dart';
-import 'package:totem_touch/data/models/visitor_registration.dart';
-import 'package:totem_touch/features/success/presentation/success_page.dart';
+import 'package:kiosco_gpa/app/kiosk_shell.dart';
+import 'package:kiosco_gpa/core/animations/app_motion.dart';
+import 'package:kiosco_gpa/core/audio/sound_controller.dart';
+import 'package:kiosco_gpa/core/theme/app_theme.dart';
+import 'package:kiosco_gpa/data/models/registration_session.dart';
+import 'package:kiosco_gpa/data/models/visitor_registration.dart';
+import 'package:kiosco_gpa/features/success/presentation/success_page.dart';
 
 import '../../helpers/fake_sound_playback_engine.dart';
 

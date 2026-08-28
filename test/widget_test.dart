@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/app/app.dart';
-import 'package:totem_touch/core/animations/app_motion.dart';
-import 'package:totem_touch/core/session/registration_session_controller.dart';
-import 'package:totem_touch/shared/buttons/gpa_buttons.dart';
-import 'package:totem_touch/shared/mascot/gp_mascot.dart';
+import 'package:kiosco_gpa/app/app.dart';
+import 'package:kiosco_gpa/core/animations/app_motion.dart';
+import 'package:kiosco_gpa/core/session/registration_session_controller.dart';
+import 'package:kiosco_gpa/shared/buttons/gpa_buttons.dart';
+import 'package:kiosco_gpa/shared/mascot/gp_mascot.dart';
 
 void main() {
   Future<void> waitForPreload(WidgetTester tester) async {
@@ -25,7 +25,7 @@ void main() {
     tester.view.physicalSize = const Size(1024, 768);
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const TotemTouchApp());
+    await tester.pumpWidget(const KioscoGpaApp());
     expect(find.byKey(const ValueKey('technical-splash')), findsOneWidget);
     await waitForPreload(tester);
     await tester.pump(const Duration(milliseconds: 500));
@@ -54,7 +54,7 @@ void main() {
     tester.view.physicalSize = const Size(1024, 768);
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const TotemTouchApp());
+    await tester.pumpWidget(const KioscoGpaApp());
     await waitForPreload(tester);
     await tester.pump(const Duration(milliseconds: 1500));
     final sessionController = tester
@@ -102,7 +102,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(1024, 768);
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(const TotemTouchApp());
+    await tester.pumpWidget(const KioscoGpaApp());
     await waitForPreload(tester);
 
     final logo = find.bySemanticsLabel('GPA');

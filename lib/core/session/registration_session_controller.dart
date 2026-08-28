@@ -8,7 +8,7 @@ class RegistrationSessionController extends ChangeNotifier {
   RegistrationSessionController({
     DateTime Function()? clock,
     String Function()? idGenerator,
-    this.kioskId = 'totem-gpa-01',
+    this.kioskId = 'kiosco-gpa-01',
     this.eventId = 'evento-gpa',
   }) : _clock = clock ?? DateTime.now,
        _idGenerator = idGenerator ?? _SessionIdGenerator().next {

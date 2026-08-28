@@ -9,14 +9,14 @@ import '../data/repositories/syncing_interest_submission_repository.dart';
 import 'app_preloader.dart';
 import 'app_router.dart';
 
-class TotemTouchApp extends StatefulWidget {
-  const TotemTouchApp({super.key});
+class KioscoGpaApp extends StatefulWidget {
+  const KioscoGpaApp({super.key});
 
   @override
-  State<TotemTouchApp> createState() => _TotemTouchAppState();
+  State<KioscoGpaApp> createState() => _KioscoGpaAppState();
 }
 
-class _TotemTouchAppState extends State<TotemTouchApp> {
+class _KioscoGpaAppState extends State<KioscoGpaApp> {
   late final RegistrationSessionController _sessionController;
   late final SyncingInterestSubmissionRepository _interestRepository;
 
@@ -38,7 +38,7 @@ class _TotemTouchAppState extends State<TotemTouchApp> {
     return RegistrationSessionScope(
       controller: _sessionController,
       child: MaterialApp(
-        title: 'Tótem Touch GPA',
+        title: 'Kiosco GPA',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.kiosk,
         initialRoute: AppRouter.attract,

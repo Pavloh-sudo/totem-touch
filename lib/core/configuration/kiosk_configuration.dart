@@ -5,7 +5,7 @@ abstract final class KioskConfiguration {
   );
   static const String kioskId = String.fromEnvironment(
     'KIOSK_ID',
-    defaultValue: 'totem-gpa-01',
+    defaultValue: 'kiosco-gpa-01',
   );
   static const String eventId = String.fromEnvironment(
     'EVENT_ID',

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/core/theme/app_colors.dart';
-import 'package:totem_touch/core/theme/app_surfaces.dart';
-import 'package:totem_touch/core/theme/app_theme.dart';
-import 'package:totem_touch/core/theme/app_typography.dart';
-import 'package:totem_touch/core/theme/area_colors.dart';
+import 'package:kiosco_gpa/core/theme/app_colors.dart';
+import 'package:kiosco_gpa/core/theme/app_surfaces.dart';
+import 'package:kiosco_gpa/core/theme/app_theme.dart';
+import 'package:kiosco_gpa/core/theme/app_typography.dart';
+import 'package:kiosco_gpa/core/theme/area_colors.dart';
 
 void main() {
   group('sistema visual GPA', () {
@@ -19,7 +19,7 @@ void main() {
       expect(AppColors.successGreen, const Color(0xFF24976F));
     });
 
-    test('usa Manrope y la escala pensada para el tótem', () {
+    test('usa Manrope y la escala pensada para el kiosco', () {
       final theme = AppTheme.kiosk;
 
       expect(theme.textTheme.displayLarge?.fontFamily, AppTypography.family);

@@ -102,8 +102,21 @@ class _GpaTouchFieldState extends State<GpaTouchField>
 
   void _activate() {
     if (!widget.enabled) return;
+    _collapseSelectionAtEnd();
     _focusNode.requestFocus();
     widget.onTap();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _collapseSelectionAtEnd();
+    });
+  }
+
+  void _collapseSelectionAtEnd() {
+    final offset = widget.controller.text.length;
+    if (widget.controller.selection.isCollapsed &&
+        widget.controller.selection.baseOffset == offset) {
+      return;
+    }
+    widget.controller.selection = TextSelection.collapsed(offset: offset);
   }
 
   @override
@@ -177,26 +190,33 @@ class _GpaTouchFieldState extends State<GpaTouchField>
                       right: 50,
                       top: 30,
                       bottom: 4,
-                      child: IgnorePointer(
-                        child: TextField(
-                          controller: widget.controller,
-                          focusNode: _focusNode,
-                          readOnly: true,
-                          showCursor: focused,
-                          obscureText: widget.obscureText,
-                          style: AppTypography.field,
-                          decoration: InputDecoration(
-                            hintText: widget.hint,
-                            hintStyle: AppTypography.field.copyWith(
-                              color: AppColors.steel,
+                      child: TextSelectionTheme(
+                        data: const TextSelectionThemeData(
+                          selectionColor: Colors.transparent,
+                          selectionHandleColor: Colors.transparent,
+                        ),
+                        child: IgnorePointer(
+                          child: TextField(
+                            controller: widget.controller,
+                            focusNode: _focusNode,
+                            readOnly: true,
+                            showCursor: focused,
+                            enableInteractiveSelection: false,
+                            obscureText: widget.obscureText,
+                            style: AppTypography.field,
+                            decoration: InputDecoration(
+                              hintText: widget.hint,
+                              hintStyle: AppTypography.field.copyWith(
+                                color: AppColors.steel,
+                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              filled: false,
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
                             ),
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            disabledBorder: InputBorder.none,
-                            filled: false,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
                           ),
                         ),
                       ),

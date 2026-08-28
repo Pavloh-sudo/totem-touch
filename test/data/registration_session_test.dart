@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/data/models/registration_session.dart';
+import 'package:kiosco_gpa/data/models/registration_session.dart';
 
 void main() {
   test('recupera registros anteriores con una sola ruta de interés', () {
@@ -15,7 +15,7 @@ void main() {
       'interestPath': ['Software Industrial', 'Sistemas Web'],
       'completedAt': '2026-08-26T10:02:00.000',
       'durationMilliseconds': 120000,
-      'kioskId': 'totem-prueba',
+      'kioskId': 'kiosco-prueba',
       'eventId': 'evento-prueba',
     });
 
@@ -43,7 +43,7 @@ void main() {
       'additionalMessage': 'Me interesa una demostración.',
       'completedAt': '2026-08-26T10:02:00.000',
       'durationMilliseconds': 120000,
-      'kioskId': 'totem-prueba',
+      'kioskId': 'kiosco-prueba',
       'eventId': 'evento-prueba',
     });
 

@@ -1,6 +1,6 @@
-# Assets del tótem
+# Assets del kiosco
 
-Todos los recursos que necesita la aplicación deben vivir dentro de esta carpeta. La ejecución del tótem no debe depender de CDN, fuentes remotas, imágenes externas ni sonidos descargados al momento.
+Todos los recursos que necesita la aplicación deben vivir dentro de esta carpeta. La ejecución del kiosco no debe depender de CDN, fuentes remotas, imágenes externas ni sonidos descargados al momento.
 
 ```text
 assets/

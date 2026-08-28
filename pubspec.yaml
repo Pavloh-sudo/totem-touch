@@ -1,5 +1,5 @@
-name: totem_touch
-description: Tótem interactivo de GPA diseñado para Flutter Web.
+name: kiosco_gpa
+description: Kiosco interactivo de GPA diseñado para Flutter Web.
 publish_to: none
 version: 0.1.0+1
 
@@ -11,6 +11,8 @@ dependencies:
   audioplayers: ^6.8.1
   excel_community: ^2.3.0
   flutter:
+    sdk: flutter
+  flutter_web_plugins:
     sdk: flutter
   http: ^1.6.0
   idb_shim: ^2.9.8

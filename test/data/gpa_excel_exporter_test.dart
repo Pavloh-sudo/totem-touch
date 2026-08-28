@@ -5,10 +5,10 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:excel_community/excel_community.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/data/export/gpa_excel_exporter.dart';
-import 'package:totem_touch/data/models/registration_session.dart';
-import 'package:totem_touch/data/models/stored_registration.dart';
-import 'package:totem_touch/data/models/visitor_registration.dart';
+import 'package:kiosco_gpa/data/export/gpa_excel_exporter.dart';
+import 'package:kiosco_gpa/data/models/registration_session.dart';
+import 'package:kiosco_gpa/data/models/stored_registration.dart';
+import 'package:kiosco_gpa/data/models/visitor_registration.dart';
 
 void main() {
   test('genera las tres hojas con logo, filtros y resumen', () {
@@ -228,7 +228,7 @@ StoredRegistration _record({
       additionalMessage: additionalMessage,
       completedAt: completedAt,
       duration: const Duration(minutes: 2),
-      kioskId: 'totem-prueba',
+      kioskId: 'kiosco-prueba',
       eventId: 'evento-prueba',
     ),
   );

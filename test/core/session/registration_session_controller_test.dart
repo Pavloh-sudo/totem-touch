@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/core/session/registration_session_controller.dart';
-import 'package:totem_touch/data/models/visitor_registration.dart';
+import 'package:kiosco_gpa/core/session/registration_session_controller.dart';
+import 'package:kiosco_gpa/data/models/visitor_registration.dart';
 
 void main() {
   test('forma la sesión completa, calcula duración y prepara un id nuevo', () {

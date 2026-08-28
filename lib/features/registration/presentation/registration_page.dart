@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/animations/app_motion.dart';
 import '../../../data/models/visitor_registration.dart';
@@ -45,6 +46,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
   bool _acceptsInformation = false;
   bool _openingNextScreen = false;
 
+  @override
+  void initState() {
+    super.initState();
+    for (final focusNode in [
+      _nameFocus,
+      _organizationFocus,
+      _emailFocus,
+      _phoneFocus,
+    ]) {
+      focusNode.onKeyEvent = _handlePhysicalKey;
+    }
+  }
+
   bool get _keyboardVisible => _activeField != null;
 
   GpaKeyboardLayout get _keyboardLayout {
@@ -80,8 +94,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   bool get _phoneValid {
-    return _phoneController.text.replaceAll(RegExp(r'\D'), '').length >= 10;
+    return _phoneDigits.length == 10;
   }
+
+  String get _phoneDigits =>
+      _phoneController.text.replaceAll(RegExp(r'\D'), '');
 
   bool get _identityValid {
     return _profile != null && _nameValid && _organizationValid;
@@ -128,7 +145,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     if (_phoneController.text.isEmpty) {
       return 'Escribe tu teléfono para continuar.';
     }
-    return 'Revisa el teléfono antes de continuar.';
+    return 'Escribe un teléfono de 10 dígitos.';
   }
 
   void _selectProfile(VisitorProfile profile) {
@@ -146,6 +163,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _showKeyboard(_RegistrationField field) {
+    final controller = switch (field) {
+      _RegistrationField.name => _nameController,
+      _RegistrationField.organization => _organizationController,
+      _RegistrationField.email => _emailController,
+      _RegistrationField.phone => _phoneController,
+    };
+    _collapseSelectionAtEnd(controller);
     if (_activeField == field) return;
     setState(() {
       if (_activeField != null) {
@@ -153,6 +177,59 @@ class _RegistrationPageState extends State<RegistrationPage> {
       }
       _activeField = field;
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _collapseSelectionAtEnd(controller);
+    });
+  }
+
+  void _collapseSelectionAtEnd(TextEditingController controller) {
+    controller.selection = TextSelection.collapsed(
+      offset: controller.text.length,
+    );
+  }
+
+  KeyEventResult _handlePhysicalKey(FocusNode node, KeyEvent event) {
+    if (_activeField == null ||
+        (event is! KeyDownEvent && event is! KeyRepeatEvent)) {
+      return KeyEventResult.ignored;
+    }
+
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.backspace) {
+      _backspace();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.numpadEnter ||
+        key == LogicalKeyboardKey.escape) {
+      _dismissKeyboard();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowLeft ||
+        key == LogicalKeyboardKey.arrowRight ||
+        key == LogicalKeyboardKey.home ||
+        key == LogicalKeyboardKey.end) {
+      final controller = _activeController;
+      if (controller != null) _collapseSelectionAtEnd(controller);
+      return KeyEventResult.handled;
+    }
+
+    final character = event.character;
+    if (character == null ||
+        character.isEmpty ||
+        character.runes.any((rune) => rune < 32 || rune == 127)) {
+      return KeyEventResult.ignored;
+    }
+
+    final accepted = switch (_activeField!) {
+      _RegistrationField.phone => RegExp(r'^\d$').hasMatch(character),
+      _RegistrationField.email => RegExp(
+        r'^[a-zA-Z0-9@._+\-]$',
+      ).hasMatch(character),
+      _RegistrationField.name || _RegistrationField.organization => true,
+    };
+    if (accepted) _write(character);
+    return KeyEventResult.handled;
   }
 
   void _dismissKeyboard() {
@@ -170,10 +247,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final controller = _activeController;
     if (field == null || controller == null) return;
 
-    var nextValue = value;
     if (field == _RegistrationField.phone) {
-      nextValue = value.replaceAll(RegExp(r'\D'), '');
-    } else if ((field == _RegistrationField.name ||
+      final addedDigits = value.replaceAll(RegExp(r'\D'), '');
+      if (addedDigits.isEmpty) return;
+      final digits = '$_phoneDigits$addedDigits';
+      if (digits.length > 10) return;
+      final formatted = _formatPhone(digits);
+      setState(() {
+        controller.value = TextEditingValue(
+          text: formatted,
+          selection: TextSelection.collapsed(offset: formatted.length),
+        );
+      });
+      return;
+    }
+
+    var nextValue = value;
+    if ((field == _RegistrationField.name ||
             field == _RegistrationField.organization) &&
         value.length == 1 &&
         (controller.text.isEmpty || controller.text.endsWith(' '))) {
@@ -181,21 +271,26 @@ class _RegistrationPageState extends State<RegistrationPage> {
     } else if (field == _RegistrationField.email && value.startsWith('@')) {
       final atIndex = controller.text.indexOf('@');
       if (atIndex >= 0) {
-        controller.text = controller.text.substring(0, atIndex);
+        final text = controller.text.substring(0, atIndex);
+        controller.value = TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: text.length),
+        );
       }
     }
 
     final maxLength = switch (field) {
       _RegistrationField.name => 60,
       _RegistrationField.organization || _RegistrationField.email => 80,
-      _RegistrationField.phone => 15,
+      _RegistrationField.phone => 14,
     };
     if (controller.text.length + nextValue.length > maxLength) return;
 
     setState(() {
-      controller.text += nextValue;
-      controller.selection = TextSelection.collapsed(
-        offset: controller.text.length,
+      final text = '${controller.text}$nextValue';
+      controller.value = TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
       );
     });
   }
@@ -205,15 +300,34 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final controller = _activeController;
     if (field == null || controller == null || controller.text.isEmpty) return;
 
+    if (field == _RegistrationField.phone) {
+      final digits = _phoneDigits.substring(0, _phoneDigits.length - 1);
+      final formatted = _formatPhone(digits);
+      setState(() {
+        controller.value = TextEditingValue(
+          text: formatted,
+          selection: TextSelection.collapsed(offset: formatted.length),
+        );
+      });
+      return;
+    }
+
     setState(() {
-      controller.text = controller.text.substring(
-        0,
-        controller.text.length - 1,
-      );
-      controller.selection = TextSelection.collapsed(
-        offset: controller.text.length,
+      final text = controller.text.substring(0, controller.text.length - 1);
+      controller.value = TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
       );
     });
+  }
+
+  String _formatPhone(String digits) {
+    if (digits.length <= 3) return digits;
+    final areaCode = digits.substring(0, 3);
+    if (digits.length <= 6) {
+      return '($areaCode) ${digits.substring(3)}';
+    }
+    return '($areaCode) ${digits.substring(3, 6)}-${digits.substring(6)}';
   }
 
   void _goToContact() {

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/app/kiosk_shell.dart';
-import 'package:totem_touch/core/animations/app_motion.dart';
-import 'package:totem_touch/core/audio/sound_controller.dart';
-import 'package:totem_touch/core/theme/app_theme.dart';
-import 'package:totem_touch/data/models/visitor_registration.dart';
-import 'package:totem_touch/features/registration/presentation/registration_page.dart';
-import 'package:totem_touch/shared/buttons/gpa_buttons.dart';
-import 'package:totem_touch/shared/inputs/gpa_consent_checkbox.dart';
-import 'package:totem_touch/shared/inputs/gpa_touch_field.dart';
+import 'package:kiosco_gpa/app/kiosk_shell.dart';
+import 'package:kiosco_gpa/core/animations/app_motion.dart';
+import 'package:kiosco_gpa/core/audio/sound_controller.dart';
+import 'package:kiosco_gpa/core/theme/app_theme.dart';
+import 'package:kiosco_gpa/data/models/visitor_registration.dart';
+import 'package:kiosco_gpa/features/registration/presentation/registration_page.dart';
+import 'package:kiosco_gpa/shared/buttons/gpa_buttons.dart';
+import 'package:kiosco_gpa/shared/inputs/gpa_consent_checkbox.dart';
+import 'package:kiosco_gpa/shared/inputs/gpa_touch_field.dart';
 
 import '../../helpers/fake_sound_playback_engine.dart';
 
@@ -24,7 +25,7 @@ void main() {
     return find.widgetWithText(GpaTouchField, label);
   }
 
-  testWidgets('completa los dos paneles usando el teclado del tótem', (
+  testWidgets('completa los dos paneles usando el teclado del kiosco', (
     tester,
   ) async {
     tester.view.devicePixelRatio = 1;
@@ -166,7 +167,7 @@ void main() {
     expect(result!.name, 'Pablo');
     expect(result!.organization, 'Gpa');
     expect(result!.email, 'p1@gmail.com');
-    expect(result!.phone, '1111111111');
+    expect(result!.phone, '(111) 111-1111');
     expect(result!.acceptsInformation, isTrue);
     expect(tester.takeException(), isNull);
   });
@@ -244,7 +245,7 @@ void main() {
     await tapKeys(tester, List.filled(5, '1'));
     await tester.tap(field('Correo electrónico'));
     await tester.pump();
-    expect(find.text('Revisa el teléfono antes de continuar.'), findsOneWidget);
+    expect(find.text('Escribe un teléfono de 10 dígitos.'), findsOneWidget);
     expect(
       tester
           .widget<GpaPrimaryButton>(
@@ -254,4 +255,61 @@ void main() {
       isNull,
     );
   });
+
+  testWidgets(
+    'acepta teclado físico, conserva el virtual y mantiene el cursor al final',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(1024, 768);
+      addTearDown(tester.view.reset);
+      final controller = SoundController(engine: FakeSoundPlaybackEngine());
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.kiosk,
+          home: KioskShell(
+            soundController: controller,
+            inactivityTimeout: null,
+            child: RegistrationPage(onBack: () {}, onContinue: (_) async {}),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Otro'));
+      await tester.tap(field('Nombre'));
+      await tester.pump();
+      await tester.pump(AppMotion.keyboardShow);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyP);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyA);
+      await tester.pump();
+
+      final nameField = tester.widget<GpaTouchField>(field('Nombre'));
+      expect(nameField.controller.text, 'Pa');
+      expect(find.text('Q'), findsOneWidget);
+      expect(nameField.controller.selection.isCollapsed, isTrue);
+      expect(
+        nameField.controller.selection.baseOffset,
+        nameField.controller.text.length,
+      );
+
+      nameField.controller.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: nameField.controller.text.length,
+      );
+      await tester.tap(field('Nombre'));
+      await tester.pump();
+      expect(nameField.controller.selection.isCollapsed, isTrue);
+      expect(
+        nameField.controller.selection.baseOffset,
+        nameField.controller.text.length,
+      );
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.pump();
+      expect(nameField.controller.text, 'P');
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/core/animations/app_motion.dart';
-import 'package:totem_touch/core/audio/sound_controller.dart';
-import 'package:totem_touch/core/theme/app_theme.dart';
-import 'package:totem_touch/features/interests/domain/interest_tree.dart';
-import 'package:totem_touch/features/interests/presentation/interests_screen.dart';
-import 'package:totem_touch/features/interests/presentation/widgets/interest_option_card.dart';
-import 'package:totem_touch/features/interests/presentation/widgets/interest_node_visuals.dart';
-import 'package:totem_touch/features/interests/presentation/widgets/interest_options_grid.dart';
-import 'package:totem_touch/shared/feedback/gpa_progress_indicator.dart';
+import 'package:kiosco_gpa/core/animations/app_motion.dart';
+import 'package:kiosco_gpa/core/audio/sound_controller.dart';
+import 'package:kiosco_gpa/core/theme/app_theme.dart';
+import 'package:kiosco_gpa/features/interests/domain/interest_tree.dart';
+import 'package:kiosco_gpa/features/interests/presentation/interests_screen.dart';
+import 'package:kiosco_gpa/features/interests/presentation/widgets/interest_option_card.dart';
+import 'package:kiosco_gpa/features/interests/presentation/widgets/interest_node_visuals.dart';
+import 'package:kiosco_gpa/features/interests/presentation/widgets/interest_options_grid.dart';
+import 'package:kiosco_gpa/shared/feedback/gpa_progress_indicator.dart';
 
 import '../../helpers/fake_sound_playback_engine.dart';
 

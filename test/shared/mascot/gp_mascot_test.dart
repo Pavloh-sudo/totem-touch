@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:totem_touch/core/animations/app_motion.dart';
-import 'package:totem_touch/shared/mascot/gp_mascot.dart';
+import 'package:kiosco_gpa/core/animations/app_motion.dart';
+import 'package:kiosco_gpa/shared/mascot/gp_mascot.dart';
 
 void main() {
   Widget testApp(
