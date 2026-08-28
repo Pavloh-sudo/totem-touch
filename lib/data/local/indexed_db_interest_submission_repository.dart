@@ -6,7 +6,7 @@ import '../repositories/interest_submission_repository.dart';
 import 'indexed_db_factory.dart';
 
 class IndexedDbInterestSubmissionRepository
-    implements InterestSubmissionRepository {
+    implements SyncableInterestSubmissionRepository {
   IndexedDbInterestSubmissionRepository({
     IdbFactory? factory,
     this.databaseName = 'gpa_totem_touch',
@@ -92,6 +92,26 @@ class IndexedDbInterestSubmissionRepository
             .toList()
           ..sort((a, b) => a.localIndex.compareTo(b.localIndex));
     return List.unmodifiable(records);
+  }
+
+  @override
+  Future<List<StoredRegistration>> getPending() async {
+    final records = await getAll();
+    return List.unmodifiable(records.where((record) => record.isPending));
+  }
+
+  @override
+  Future<void> markSynced(String sessionId) async {
+    final database = await _openDatabase();
+    final transaction = database.transaction(_storeName, idbModeReadWrite);
+    final store = transaction.objectStore(_storeName);
+    final stored = await store.getObject(sessionId);
+    if (stored != null) {
+      final value = Map<String, Object?>.from(stored as Map)
+        ..['syncStatus'] = RegistrationSyncStatus.synced.name;
+      await store.put(value);
+    }
+    await transaction.completed;
   }
 
   @override

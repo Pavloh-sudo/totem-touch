@@ -26,3 +26,10 @@ abstract interface class InterestSubmissionRepository {
 
   Future<bool> checkStorage();
 }
+
+abstract interface class SyncableInterestSubmissionRepository
+    implements InterestSubmissionRepository {
+  Future<List<StoredRegistration>> getPending();
+
+  Future<void> markSynced(String sessionId);
+}

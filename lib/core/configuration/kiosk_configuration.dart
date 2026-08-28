@@ -1,4 +1,8 @@
 abstract final class KioskConfiguration {
+  static const String apiBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'api',
+  );
   static const String kioskId = String.fromEnvironment(
     'KIOSK_ID',
     defaultValue: 'totem-gpa-01',
@@ -33,4 +37,10 @@ abstract final class KioskConfiguration {
   static const double attractLogoSize = 180;
   static const double horizontalMargin = 48;
   static const double bottomMargin = 36;
+
+  static Uri get apiBaseUri {
+    final configured = apiBaseUrl.trim();
+    final normalized = configured.endsWith('/') ? configured : '$configured/';
+    return Uri.base.resolve(normalized);
+  }
 }

@@ -60,6 +60,13 @@ void main() {
       expect(summary.synced, 0);
       expect(summary.lastRegistrationAt, submission.completedAt);
       expect(await secondRepository.checkStorage(), isTrue);
+
+      expect(await secondRepository.getPending(), hasLength(1));
+      await secondRepository.markSynced(submission.sessionId);
+      expect(await secondRepository.getPending(), isEmpty);
+      final syncedSummary = await secondRepository.getSummary();
+      expect(syncedSummary.pending, 0);
+      expect(syncedSummary.synced, 1);
     },
   );
 }

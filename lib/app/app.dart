@@ -4,7 +4,8 @@ import '../core/theme/app_theme.dart';
 import '../core/configuration/kiosk_configuration.dart';
 import '../core/session/registration_session_controller.dart';
 import '../data/local/indexed_db_interest_submission_repository.dart';
-import '../data/repositories/interest_submission_repository.dart';
+import '../data/remote/registration_api_client.dart';
+import '../data/repositories/syncing_interest_submission_repository.dart';
 import 'app_preloader.dart';
 import 'app_router.dart';
 
@@ -17,7 +18,7 @@ class TotemTouchApp extends StatefulWidget {
 
 class _TotemTouchAppState extends State<TotemTouchApp> {
   late final RegistrationSessionController _sessionController;
-  late final InterestSubmissionRepository _interestRepository;
+  late final SyncingInterestSubmissionRepository _interestRepository;
 
   @override
   void initState() {
@@ -26,7 +27,10 @@ class _TotemTouchAppState extends State<TotemTouchApp> {
       kioskId: KioskConfiguration.kioskId,
       eventId: KioskConfiguration.eventId,
     );
-    _interestRepository = IndexedDbInterestSubmissionRepository();
+    _interestRepository = SyncingInterestSubmissionRepository(
+      local: IndexedDbInterestSubmissionRepository(),
+      remote: RegistrationApiClient(baseUri: KioskConfiguration.apiBaseUri),
+    );
   }
 
   @override
@@ -52,6 +56,7 @@ class _TotemTouchAppState extends State<TotemTouchApp> {
 
   @override
   void dispose() {
+    _interestRepository.dispose();
     _sessionController.dispose();
     super.dispose();
   }
