@@ -91,6 +91,44 @@ class GpaSecondaryButton extends StatelessWidget {
   }
 }
 
+class GpaDangerButton extends StatelessWidget {
+  const GpaDangerButton({
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.state = GpaButtonState.normal,
+    this.expand = false,
+    this.sound = SoundEffect.warning,
+    this.height = KioskConfiguration.primaryControlHeight,
+    this.trailingIcon = false,
+    super.key,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final GpaButtonState state;
+  final bool expand;
+  final SoundEffect sound;
+  final double height;
+  final bool trailingIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return _GpaButtonSurface(
+      label: label,
+      icon: icon,
+      onPressed: onPressed,
+      state: state,
+      variant: _GpaButtonVariant.danger,
+      expand: expand,
+      sound: sound,
+      height: height,
+      trailingIcon: trailingIcon,
+    );
+  }
+}
+
 class GpaIconButton extends StatelessWidget {
   const GpaIconButton({
     required this.icon,
@@ -121,7 +159,7 @@ class GpaIconButton extends StatelessWidget {
   }
 }
 
-enum _GpaButtonVariant { primary, secondary, icon }
+enum _GpaButtonVariant { primary, secondary, danger, icon }
 
 class _GpaButtonSurface extends StatefulWidget {
   const _GpaButtonSurface({
@@ -272,6 +310,18 @@ class _GpaButtonSurfaceState extends State<_GpaButtonSurface>
                 color: style.background,
                 borderRadius: radius,
                 border: Border.all(color: style.border, width: 1.25),
+                boxShadow:
+                    widget.variant == _GpaButtonVariant.danger && _enabled
+                    ? [
+                        BoxShadow(
+                          color: AppColors.brightCrimson.withValues(
+                            alpha: 0.22,
+                          ),
+                          blurRadius: 16,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : null,
               ),
               child: Stack(
                 fit: StackFit.expand,
@@ -393,14 +443,15 @@ class _GpaButtonStyle {
     GpaButtonState state,
     bool enabled,
   ) {
+    final filled =
+        variant == _GpaButtonVariant.primary ||
+        variant == _GpaButtonVariant.danger;
     if (!enabled || state == GpaButtonState.disabled) {
       return _GpaButtonStyle(
-        background: variant == _GpaButtonVariant.primary
+        background: filled
             ? AppColors.steel.withValues(alpha: 0.65)
             : AppColors.steel.withValues(alpha: 0.10),
-        foreground: variant == _GpaButtonVariant.primary
-            ? AppColors.pureWhite
-            : AppColors.steel,
+        foreground: filled ? AppColors.pureWhite : AppColors.steel,
         border: AppColors.steel.withValues(alpha: 0.28),
         ripple: Colors.transparent,
       );
@@ -408,12 +459,8 @@ class _GpaButtonStyle {
 
     if (state == GpaButtonState.success) {
       return _GpaButtonStyle(
-        background: variant == _GpaButtonVariant.primary
-            ? AppColors.successGreen
-            : AppColors.pureWhite,
-        foreground: variant == _GpaButtonVariant.primary
-            ? AppColors.pureWhite
-            : AppColors.successGreen,
+        background: filled ? AppColors.successGreen : AppColors.pureWhite,
+        foreground: filled ? AppColors.pureWhite : AppColors.successGreen,
         border: AppColors.successGreen,
         ripple: AppColors.pureWhite.withValues(alpha: 0.10),
       );
@@ -431,6 +478,12 @@ class _GpaButtonStyle {
         foreground: AppColors.gpaCrimson,
         border: AppColors.gpaCrimson.withValues(alpha: 0.72),
         ripple: AppColors.gpaCrimson.withValues(alpha: 0.07),
+      ),
+      _GpaButtonVariant.danger => _GpaButtonStyle(
+        background: const Color(0xFFC9141D),
+        foreground: AppColors.pureWhite,
+        border: AppColors.brightCrimson,
+        ripple: AppColors.pureWhite.withValues(alpha: 0.14),
       ),
       _GpaButtonVariant.icon => _GpaButtonStyle(
         background: AppColors.pureWhite,

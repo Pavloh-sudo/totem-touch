@@ -122,8 +122,10 @@ void main() {
 
     expect(find.text('Administración'), findsOneWidget);
     expect(find.text('Exportar Excel'), findsOneWidget);
-    expect(find.text('Probar conexión'), findsOneWidget);
+    expect(find.text('Revisar estados'), findsOneWidget);
+    expect(find.text('Reiniciar registros de prueba'), findsOneWidget);
     expect(find.text('Volver al kiosco'), findsOneWidget);
+    expect(find.textContaining('se conectará después'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

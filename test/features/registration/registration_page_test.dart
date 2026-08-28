@@ -118,11 +118,12 @@ void main() {
       '@hotmail.com',
       '@outlook.com',
       '@yahoo.com',
-      '@icloud.com',
+      '.com',
     ]) {
       expect(find.text(domain), findsOneWidget);
     }
     expect(find.text('@live.com'), findsNothing);
+    expect(find.text('@icloud.com'), findsNothing);
     await tapKeys(tester, ['@gmail.com']);
 
     await tester.tap(field('Teléfono'));

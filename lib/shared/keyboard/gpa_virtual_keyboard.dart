@@ -270,8 +270,8 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
             shortcut: true,
           ),
           _KeyboardKeySpec.text(
-            '@icloud.com',
-            '@icloud.com',
+            '.com',
+            '.com',
             flex: 2,
             compact: true,
             shortcut: true,
@@ -332,8 +332,8 @@ class _KeyboardSurfaceState extends State<_KeyboardSurface> {
             shortcut: true,
           ),
           _KeyboardKeySpec.text(
-            '@icloud.com',
-            '@icloud.com',
+            '.com',
+            '.com',
             flex: 2,
             compact: true,
             shortcut: true,

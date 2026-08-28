@@ -45,6 +45,7 @@ class SyncingInterestSubmissionRepository
     if (!_disposed) unawaited(synchronize());
   }
 
+  @override
   Future<void> synchronize() async {
     if (_disposed) return;
     final current = _syncInFlight;
@@ -81,9 +82,14 @@ class SyncingInterestSubmissionRepository
 
   @override
   Future<bool> checkStorage() async {
-    if (!await _local.checkStorage()) return false;
-    return _remote.isAvailable();
+    return _local.checkStorage();
   }
+
+  @override
+  Future<bool> checkServer() => _remote.isAvailable();
+
+  @override
+  Future<void> clearAll() => _local.clearAll();
 
   void dispose() {
     if (_disposed) return;

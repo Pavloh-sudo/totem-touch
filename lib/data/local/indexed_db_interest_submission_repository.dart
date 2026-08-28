@@ -115,6 +115,20 @@ class IndexedDbInterestSubmissionRepository
   }
 
   @override
+  Future<void> clearAll() async {
+    final database = await _openDatabase();
+    final transaction = database.transaction(_storeName, idbModeReadWrite);
+    await transaction.objectStore(_storeName).clear();
+    await transaction.completed;
+  }
+
+  @override
+  Future<bool> checkServer() async => false;
+
+  @override
+  Future<void> synchronize() async {}
+
+  @override
   Future<RegistrationStorageSummary> getSummary() async {
     final records = await getAll();
     final pending = records.where((record) => record.isPending).length;

@@ -26,5 +26,10 @@ void main() {
     await repository.save(submission);
 
     expect(repository.submissions, [submission]);
+
+    await repository.clearAll();
+
+    expect(repository.submissions, isEmpty);
+    expect((await repository.getSummary()).total, 0);
   });
 }

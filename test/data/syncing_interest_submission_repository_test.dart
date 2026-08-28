@@ -42,6 +42,12 @@ void main() {
       expect(summary.pending, 0);
       expect(summary.synced, 1);
       expect(remote.submittedIds, [_session().sessionId]);
+      expect(await repository.checkStorage(), isTrue);
+      expect(await repository.checkServer(), isTrue);
+
+      await repository.clearAll();
+      summary = await repository.getSummary();
+      expect(summary.total, 0);
     },
   );
 }

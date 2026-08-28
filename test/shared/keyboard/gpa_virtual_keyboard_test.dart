@@ -92,11 +92,12 @@ void main() {
       '@hotmail.com',
       '@outlook.com',
       '@yahoo.com',
-      '@icloud.com',
+      '.com',
     ]) {
       expect(find.text(domain), findsOneWidget);
     }
     expect(find.text('@live.com'), findsNothing);
+    expect(find.text('@icloud.com'), findsNothing);
 
     await tester.tap(find.text('123'));
     await tester.pump();
@@ -110,6 +111,9 @@ void main() {
     await tester.tap(find.text('@gmail.com'));
     await tester.pump();
     expect(value, '1@gmail.com');
+    await tester.tap(find.text('.com'));
+    await tester.pump();
+    expect(value, '1@gmail.com.com');
     expect(engine.playCalls.last.$1, 'audio/ui_tap.wav');
     expect(engine.playCalls.last.$2, closeTo(0.135, 0.0001));
   });

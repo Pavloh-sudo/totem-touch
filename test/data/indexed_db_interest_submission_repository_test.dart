@@ -67,6 +67,14 @@ void main() {
       final syncedSummary = await secondRepository.getSummary();
       expect(syncedSummary.pending, 0);
       expect(syncedSummary.synced, 1);
+
+      await secondRepository.clearAll();
+      expect(await secondRepository.getAll(), isEmpty);
+      final clearedSummary = await secondRepository.getSummary();
+      expect(clearedSummary.total, 0);
+      expect(clearedSummary.pending, 0);
+      expect(clearedSummary.synced, 0);
+      expect(clearedSummary.lastRegistrationAt, isNull);
     },
   );
 }

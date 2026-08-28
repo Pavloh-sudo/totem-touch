@@ -47,4 +47,16 @@ class MemoryInterestSubmissionRepository
   Future<bool> checkStorage() async {
     return true;
   }
+
+  @override
+  Future<bool> checkServer() async => false;
+
+  @override
+  Future<void> synchronize() async {}
+
+  @override
+  Future<void> clearAll() async {
+    _records.clear();
+    _savedIds.clear();
+  }
 }

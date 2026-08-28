@@ -25,6 +25,12 @@ abstract interface class InterestSubmissionRepository {
   Future<RegistrationStorageSummary> getSummary();
 
   Future<bool> checkStorage();
+
+  Future<bool> checkServer();
+
+  Future<void> synchronize();
+
+  Future<void> clearAll();
 }
 
 abstract interface class SyncableInterestSubmissionRepository
